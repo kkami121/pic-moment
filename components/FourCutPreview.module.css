@@ -1,0 +1,91 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(320px, 0.8fr);
+  gap: 24px;
+}
+
+.previewCard,
+.infoCard {
+  padding: 22px;
+}
+
+.canvasWrap {
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at top, rgba(255, 122, 89, 0.16), transparent 36%),
+    linear-gradient(180deg, #16263f 0%, #0c1628 100%);
+}
+
+.previewCanvas {
+  width: min(100%, 360px);
+  height: auto;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.22);
+}
+
+.buttonRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.shotList {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.shotItem {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: #fffdfb;
+}
+
+.shotItem img {
+  width: 72px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+.shotItem strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.emptyState {
+  padding: 28px 22px;
+}
+
+.emptyState p {
+  margin: 0 0 16px;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+@media (max-width: 1023px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .previewCard,
+  .infoCard {
+    padding: 16px;
+  }
+
+  .buttonRow {
+    flex-direction: column;
+  }
+}

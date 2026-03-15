@@ -1,0 +1,124 @@
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+  gap: 28px;
+  align-items: stretch;
+}
+
+.heroPanel {
+  padding: clamp(28px, 5vw, 56px);
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.heroMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.stripCard {
+  position: relative;
+  overflow: hidden;
+  padding: 28px;
+  min-height: 580px;
+  background:
+    linear-gradient(180deg, rgba(16, 35, 63, 0.94) 0%, rgba(12, 23, 40, 0.98) 100%);
+  color: #fff7f2;
+}
+
+.stripGlow {
+  position: absolute;
+  inset: auto -10% -20% auto;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: rgba(255, 122, 89, 0.26);
+  filter: blur(16px);
+}
+
+.stripPaper {
+  position: relative;
+  width: min(100%, 320px);
+  margin: 30px auto 0;
+  padding: 16px;
+  background: linear-gradient(180deg, #fff8f3 0%, #fff3e8 100%);
+  border-radius: 28px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.28);
+}
+
+.stripTitle {
+  text-align: center;
+  color: #0f2443;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.26em;
+}
+
+.stripSlots {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.stripSlot {
+  min-height: 124px;
+  border-radius: 22px;
+  background:
+    linear-gradient(140deg, rgba(255, 122, 89, 0.18) 0%, rgba(16, 35, 63, 0.12) 100%),
+    #fff;
+  border: 1px solid rgba(15, 36, 67, 0.08);
+}
+
+.stripFooter {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(15, 36, 67, 0.12);
+  text-align: center;
+  color: rgba(15, 36, 67, 0.68);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 26px;
+}
+
+.featureCard {
+  padding: 20px;
+}
+
+.featureCard h3 {
+  margin: 0 0 10px;
+  font-size: 18px;
+}
+
+.featureCard p {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+@media (max-width: 1023px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .stripCard {
+    min-height: auto;
+  }
+
+  .featureGrid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,25 @@
+.page {
+  display: grid;
+  gap: 24px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 22px 24px;
+}
+
+.header p {
+  margin: 8px 0 0;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+@media (max-width: 767px) {
+  .header {
+    flex-direction: column;
+    padding: 20px 18px;
+  }
+}

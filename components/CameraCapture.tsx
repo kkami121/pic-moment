@@ -1,0 +1,286 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  DRAFT_STORAGE_KEY,
+  RESULT_STORAGE_KEY,
+  captureFrameToDataUrl,
+  getCameraErrorMessage,
+  getCameraStream,
+  stopMediaStream
+} from "@/lib/camera";
+import styles from "./CameraCapture.module.css";
+
+const REQUIRED_SHOTS = 4;
+
+export default function CameraCapture() {
+  const router = useRouter();
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const captureCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+
+  const [shots, setShots] = useState<string[]>([]);
+  const [retakeIndex, setRetakeIndex] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const savedDraft = sessionStorage.getItem(DRAFT_STORAGE_KEY);
+    if (!savedDraft) {
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(savedDraft);
+      if (Array.isArray(parsed)) {
+        setShots(parsed.filter((item): item is string => typeof item === "string").slice(0, REQUIRED_SHOTS));
+      }
+    } catch {
+      sessionStorage.removeItem(DRAFT_STORAGE_KEY);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (shots.length > 0) {
+      sessionStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(shots));
+      return;
+    }
+
+    sessionStorage.removeItem(DRAFT_STORAGE_KEY);
+  }, [shots]);
+
+  const requestCamera = useCallback(async () => {
+    setIsLoading(true);
+    setErrorMessage(null);
+
+    stopMediaStream(streamRef.current);
+    streamRef.current = null;
+
+    try {
+      const mediaStream = await getCameraStream();
+      const videoElement = videoRef.current;
+
+      streamRef.current = mediaStream;
+
+      if (!videoElement) {
+        throw new Error("카메라 미리보기 요소를 찾을 수 없습니다.");
+      }
+
+      videoElement.srcObject = mediaStream;
+
+      await new Promise<void>((resolve) => {
+        const handleLoaded = () => {
+          videoElement.removeEventListener("loadedmetadata", handleLoaded);
+          void videoElement.play().catch(() => undefined);
+          resolve();
+        };
+
+        if (videoElement.readyState >= 1) {
+          void videoElement.play().catch(() => undefined);
+          resolve();
+          return;
+        }
+
+        videoElement.addEventListener("loadedmetadata", handleLoaded);
+      });
+    } catch (error) {
+      setErrorMessage(getCameraErrorMessage(error));
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void requestCamera();
+
+    return () => {
+      stopMediaStream(streamRef.current);
+      streamRef.current = null;
+    };
+  }, [requestCamera]);
+
+  const handleCapture = useCallback(() => {
+    const videoElement = videoRef.current;
+    const captureCanvas = captureCanvasRef.current;
+
+    if (!videoElement || !captureCanvas) {
+      setErrorMessage("카메라 캡처 준비가 완료되지 않았습니다. 잠시 후 다시 시도해 주세요.");
+      return;
+    }
+
+    if (videoElement.videoWidth === 0 || videoElement.videoHeight === 0) {
+      setErrorMessage("카메라 화면을 아직 불러오는 중입니다. 잠시 후 다시 촬영해 주세요.");
+      return;
+    }
+
+    setIsCapturing(true);
+
+    try {
+      const imageDataUrl = captureFrameToDataUrl(videoElement, captureCanvas);
+
+      setShots((previousShots) => {
+        const nextShots = [...previousShots];
+
+        // 재촬영 모드에서는 기존 슬롯을 교체하고, 일반 촬영은 뒤에 이어 붙입니다.
+        if (retakeIndex !== null) {
+          nextShots[retakeIndex] = imageDataUrl;
+          return nextShots;
+        }
+
+        if (nextShots.length < REQUIRED_SHOTS) {
+          nextShots.push(imageDataUrl);
+        }
+
+        return nextShots;
+      });
+
+      setRetakeIndex(null);
+    } catch (error) {
+      setErrorMessage(getCameraErrorMessage(error));
+    } finally {
+      setIsCapturing(false);
+    }
+  }, [retakeIndex]);
+
+  const handleRemoveLast = useCallback(() => {
+    setRetakeIndex(null);
+    setShots((previousShots) => previousShots.slice(0, -1));
+  }, []);
+
+  const handleReset = useCallback(() => {
+    setRetakeIndex(null);
+    setShots([]);
+    sessionStorage.removeItem(RESULT_STORAGE_KEY);
+  }, []);
+
+  const handleGoToResult = useCallback(() => {
+    sessionStorage.setItem(RESULT_STORAGE_KEY, JSON.stringify(shots));
+    router.push("/result");
+  }, [router, shots]);
+
+  const handleRetakeMode = useCallback((index: number) => {
+    setRetakeIndex(index);
+  }, []);
+
+  return (
+    <section className={styles.layout}>
+      <div className={`panelCard ${styles.cameraCard}`}>
+        <div className={styles.previewFrame}>
+          <div className={styles.captureBadge}>
+            <span>{retakeIndex !== null ? `${retakeIndex + 1}번째 재촬영 중` : "실시간 미리보기"}</span>
+          </div>
+
+          <video ref={videoRef} autoPlay playsInline muted />
+
+          {(isLoading || errorMessage) && (
+            <div className={styles.previewFallback}>
+              <div>
+                {isLoading && <p>카메라를 준비하고 있어요. 잠시만 기다려 주세요.</p>}
+                {errorMessage && (
+                  <div className="statusMessage" data-tone="error">
+                    {errorMessage}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className={styles.captureActions}>
+          <button
+            type="button"
+            className="primaryButton"
+            onClick={handleCapture}
+            disabled={isLoading || isCapturing || (!!errorMessage && shots.length === 0) || (shots.length >= REQUIRED_SHOTS && retakeIndex === null)}
+          >
+            {retakeIndex !== null ? `${retakeIndex + 1}번째 다시 촬영` : "사진 촬영하기"}
+          </button>
+          <button type="button" className="secondaryButton" onClick={requestCamera}>
+            권한 다시 요청
+          </button>
+          <button type="button" className="ghostButton" onClick={handleRemoveLast} disabled={shots.length === 0}>
+            마지막 사진 삭제
+          </button>
+          <button type="button" className="dangerButton" onClick={handleReset} disabled={shots.length === 0}>
+            처음부터 다시
+          </button>
+        </div>
+
+        <p className={styles.helperText}>
+          모바일에서는 브라우저 주소창이 가려지도록 세로 화면을 권장합니다. 권한 거부 시 브라우저 설정에서 카메라 접근을 다시 허용해 주세요.
+        </p>
+
+        <canvas ref={captureCanvasRef} hidden />
+      </div>
+
+      <aside className={`panelCard ${styles.sideCard}`}>
+        <div className={styles.sideHead}>
+          <div>
+            <span className="eyebrow">Capture Status</span>
+            <h2>촬영 현황</h2>
+          </div>
+          <span className="chip">
+            {shots.length} / {REQUIRED_SHOTS}장 완료
+          </span>
+        </div>
+
+        {retakeIndex !== null && (
+          <div className="statusMessage" data-tone="info" style={{ marginBottom: 16 }}>
+            {retakeIndex + 1}번째 사진을 다시 찍는 중입니다. 촬영 버튼을 누르면 해당 컷이 교체됩니다.
+          </div>
+        )}
+
+        {shots.length === REQUIRED_SHOTS && retakeIndex === null && (
+          <div className="statusMessage" data-tone="success" style={{ marginBottom: 16 }}>
+            4장의 촬영이 완료됐습니다. 원하는 컷을 다시 찍거나 바로 결과 화면으로 이동할 수 있어요.
+          </div>
+        )}
+
+        <div className={styles.shotGrid}>
+          {Array.from({ length: REQUIRED_SHOTS }).map((_, index) => {
+            const shot = shots[index];
+            const isRetaking = retakeIndex === index;
+
+            return (
+              <article key={index} className={`${styles.shotCard} ${isRetaking ? styles.retakeRing : ""}`}>
+                <div className={styles.shotHeader}>
+                  <span className={styles.shotLabel}>{index + 1}번째 컷</span>
+                  {shot ? <span className="chip">촬영 완료</span> : <span className="chip">대기 중</span>}
+                </div>
+
+                <div className={styles.shotThumbWrap}>
+                  {shot ? (
+                    <img src={shot} alt={`${index + 1}번째 촬영 결과`} />
+                  ) : (
+                    <div className={styles.shotEmpty}>촬영하면 이 위치에 사진이 표시됩니다.</div>
+                  )}
+                </div>
+
+                {shot && (
+                  <div className={styles.shotActions}>
+                    <button type="button" className="secondaryButton" onClick={() => handleRetakeMode(index)}>
+                      이 컷 재촬영
+                    </button>
+                  </div>
+                )}
+              </article>
+            );
+          })}
+        </div>
+
+        <div className={styles.completePanel}>
+          <button
+            type="button"
+            className="primaryButton"
+            onClick={handleGoToResult}
+            disabled={shots.length !== REQUIRED_SHOTS}
+          >
+            결과 확인하기
+          </button>
+        </div>
+      </aside>
+    </section>
+  );
+}
