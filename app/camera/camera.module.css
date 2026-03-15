@@ -14,12 +14,24 @@
 .topBar p {
   margin: 8px 0 0;
   color: var(--text-muted);
+  font-size: clamp(14px, 1.5vw, 16px);
   line-height: 1.7;
+}
+
+.topBar :global(.eyebrow) {
+  margin-bottom: 0;
+  margin-left: 1px;
+  font-size: clamp(11px, 1vw, 13px);
 }
 
 @media (max-width: 767px) {
   .topBar {
     flex-direction: column;
     padding: 20px 18px;
+  }
+
+  .topBar p {
+    font-size: 13px;
+    line-height: 1.6;
   }
 }

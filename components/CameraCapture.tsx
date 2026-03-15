@@ -223,17 +223,17 @@ export default function CameraCapture() {
           </button>
         </div>
 
-        <p className={styles.helperText}>
-          모바일에서는 브라우저 주소창이 가려지도록 세로 화면을 권장합니다. 권한 거부 시 브라우저 설정에서 카메라 접근을 다시 허용해 주세요.
-        </p>
-
+        {/*<p className={styles.helperText}>
+          권한 거부 시 브라우저 설정에서 카메라 접근을 다시 허용해 주세요.
+        </p>*/}
+        
         <canvas ref={captureCanvasRef} hidden />
       </div>
 
       <aside className={`panelCard ${styles.sideCard}`}>
         <div className={styles.sideHead}>
           <div>
-            <span className="eyebrow">Capture Status</span>
+            <span className="eyebrow">Poto Status</span>
             <h2>촬영 현황</h2>
           </div>
           <span className="chip">
