@@ -246,13 +246,6 @@ export default function CameraCapture() {
             {retakeIndex + 1}번째 사진을 다시 찍는 중입니다. 촬영 버튼을 누르면 해당 컷이 교체됩니다.
           </div>
         )}
-
-        {shots.length === REQUIRED_SHOTS && retakeIndex === null && (
-          <div className="statusMessage" data-tone="success" style={{ marginBottom: 16 }}>
-            4장의 촬영이 완료됐습니다. 원하는 컷을 다시 찍거나 바로 결과 화면으로 이동할 수 있어요.
-          </div>
-        )}
-
         <div className={styles.shotGrid}>
           {Array.from({ length: REQUIRED_SHOTS }).map((_, index) => {
             const shot = shots[index];
@@ -273,13 +266,6 @@ export default function CameraCapture() {
                   )}
                 </div>
 
-                {shot && (
-                  <div className={styles.shotActions}>
-                    <button type="button" className="secondaryButton" onClick={() => handleRetakeMode(index)}>
-                      이 컷 재촬영
-                    </button>
-                  </div>
-                )}
               </article>
             );
           })}
