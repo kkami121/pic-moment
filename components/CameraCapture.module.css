@@ -87,26 +87,33 @@
 
 .shotGrid {
   display: grid;
-  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 12px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(16, 35, 63, 0.04), rgba(16, 35, 63, 0.07));
+  border: 1px solid rgba(16, 35, 63, 0.08);
 }
 
 .shotCard {
-  padding: 14px;
-  border-radius: 22px;
+  padding: 12px;
+  border-radius: 18px;
   border: 1px solid var(--line);
   background: #fffdfb;
 }
 
 .shotHeader {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 
 .shotLabel {
   font-weight: 800;
+  font-size: 14px;
 }
 
 .shotThumbWrap {
@@ -135,17 +142,22 @@
   height: 100%;
   text-align: center;
   color: var(--text-muted);
-  font-size: 14px;
+  padding: 10px;
+  font-size: 12px;
+  line-height: 1.55;
 }
 
 .shotActions {
   display: flex;
-  gap: 10px;
-  margin-top: 12px;
+  gap: 8px;
+  margin-top: 10px;
 }
 
 .shotActions button {
   flex: 1;
+  min-height: 40px;
+  padding: 10px 12px;
+  font-size: 13px;
 }
 
 .retakeRing {
@@ -171,5 +183,14 @@
   .captureActions,
   .shotActions {
     flex-direction: column;
+  }
+
+  .shotGrid {
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .shotCard {
+    padding: 10px;
   }
 }
