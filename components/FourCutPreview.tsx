@@ -17,9 +17,14 @@ export default function FourCutPreview() {
   const router = useRouter();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
+  const [isMounted, setIsMounted] = useState(false);
   const [shots, setShots] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isRendering, setIsRendering] = useState(true);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     const storedImages = sessionStorage.getItem(RESULT_STORAGE_KEY);
@@ -95,6 +100,16 @@ export default function FourCutPreview() {
     router.push("/camera");
   };
 
+  if (!isMounted) {
+    return (
+      <section className={`panelCard ${styles.emptyState}`}>
+        <div className="statusMessage" data-tone="info">
+          결과 화면을 준비하고 있습니다.
+        </div>
+      </section>
+    );
+  }
+
   if (shots.length !== REQUIRED_SHOTS) {
     return (
       <section className={`panelCard ${styles.emptyState}`}>
@@ -145,7 +160,7 @@ export default function FourCutPreview() {
         <span className="eyebrow">Preview Detail</span>
         <h2 style={{ margin: "10px 0 0", fontSize: 28 }}>다운로드 전 확인</h2>
         <p className="sectionText" style={{ marginTop: 12 }}>
-          포토 스트립은 고정 비율의 세로형 캔버스로 생성됩니다. 다운로드 파일명은 촬영 시각 기준
+          포토 결과는 2 x 2 포토부스 레이아웃의 고정 비율 캔버스로 생성됩니다. 다운로드 파일명은 촬영 시각 기준
           `life4cut-YYYYMMDD-HHmmss` 형식으로 저장됩니다.
         </p>
 
@@ -156,7 +171,7 @@ export default function FourCutPreview() {
               <div>
                 <strong>{index + 1}번째 컷</strong>
                 <span style={{ color: "var(--text-muted)", lineHeight: 1.7 }}>
-                  촬영한 순서대로 세로 스트립에 배치됩니다.
+                  촬영한 순서대로 1, 2 / 3, 4 배치로 들어갑니다.
                 </span>
               </div>
             </div>

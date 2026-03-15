@@ -4,21 +4,25 @@ export const RESULT_STORAGE_KEY = "life4cut-images";
 type DownloadFormat = "png" | "jpeg";
 
 const CANVAS_WIDTH = 900;
-const PADDING = 48;
-const SLOT_GAP = 24;
-const HEADER_HEIGHT = 170;
-const FOOTER_HEIGHT = 120;
-const INNER_WIDTH = CANVAS_WIDTH - PADDING * 2;
-const SLOT_HEIGHT = Math.round(INNER_WIDTH * 1.25);
+const PAPER_PADDING = 42;
+const OUTER_MARGIN = 18;
+const COLUMN_GAP = 18;
+const HEADER_HEIGHT = 82;
+const CENTER_BAND_HEIGHT = 62;
+const FOOTER_HEIGHT = 72;
+const INNER_WIDTH = CANVAS_WIDTH - PAPER_PADDING * 2;
+const SLOT_WIDTH = Math.round((INNER_WIDTH - COLUMN_GAP) / 2);
+const SLOT_HEIGHT = Math.round(SLOT_WIDTH * 1.08);
+const CANVAS_HEIGHT =
+  PAPER_PADDING * 2 + HEADER_HEIGHT + CENTER_BAND_HEIGHT + FOOTER_HEIGHT + SLOT_HEIGHT * 2;
 
 export async function renderFourCutToCanvas(canvas: HTMLCanvasElement, images: string[]) {
   if (images.length !== 4) {
     throw new Error("4장의 이미지가 모두 필요합니다.");
   }
 
-  const canvasHeight = PADDING * 2 + HEADER_HEIGHT + FOOTER_HEIGHT + SLOT_GAP * 3 + SLOT_HEIGHT * 4;
   canvas.width = CANVAS_WIDTH;
-  canvas.height = canvasHeight;
+  canvas.height = CANVAS_HEIGHT;
 
   const context = canvas.getContext("2d");
   if (!context) {
@@ -27,44 +31,76 @@ export async function renderFourCutToCanvas(canvas: HTMLCanvasElement, images: s
 
   const loadedImages = await Promise.all(images.map((image) => loadImage(image)));
 
-  context.clearRect(0, 0, CANVAS_WIDTH, canvasHeight);
-  context.fillStyle = "#fff6ee";
-  context.fillRect(0, 0, CANVAS_WIDTH, canvasHeight);
+  context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  context.fillStyle = "#f4f0eb";
+  context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  drawGridBackground(context, CANVAS_WIDTH, CANVAS_HEIGHT);
 
   context.fillStyle = "#10233f";
-  context.fillRect(PADDING / 2, PADDING / 2, CANVAS_WIDTH - PADDING, canvasHeight - PADDING);
+  context.fillRect(OUTER_MARGIN, OUTER_MARGIN, CANVAS_WIDTH - OUTER_MARGIN * 2, CANVAS_HEIGHT - OUTER_MARGIN * 2);
 
   context.fillStyle = "#fffaf6";
-  context.fillRect(PADDING, PADDING, INNER_WIDTH, canvasHeight - PADDING * 2);
+  context.fillRect(PAPER_PADDING, PAPER_PADDING, INNER_WIDTH, CANVAS_HEIGHT - PAPER_PADDING * 2);
 
   context.fillStyle = "#10233f";
-  context.font = "700 52px Pretendard, SUIT, sans-serif";
-  context.textAlign = "center";
-  context.fillText("PIC MOMENT", CANVAS_WIDTH / 2, PADDING + 70);
+  context.font = "700 18px Pretendard, SUIT, sans-serif";
+  context.textAlign = "left";
+  context.fillText("PIC MOMENT", PAPER_PADDING + 6, PAPER_PADDING + 26);
 
   context.fillStyle = "#677791";
-  context.font = "500 28px Pretendard, SUIT, sans-serif";
-  context.fillText("LIFE 4 CUT", CANVAS_WIDTH / 2, PADDING + 115);
+  context.font = "600 16px Pretendard, SUIT, sans-serif";
+  context.textAlign = "right";
+  context.fillText("LIFE 4 CUT", CANVAS_WIDTH - PAPER_PADDING - 6, PAPER_PADDING + 26);
+
+  const leftX = PAPER_PADDING;
+  const rightX = PAPER_PADDING + SLOT_WIDTH + COLUMN_GAP;
+  const topY = PAPER_PADDING + HEADER_HEIGHT;
+  const bottomY = topY + SLOT_HEIGHT + CENTER_BAND_HEIGHT;
+  const slotPositions = [
+    { x: leftX, y: topY },
+    { x: rightX, y: topY },
+    { x: leftX, y: bottomY },
+    { x: rightX, y: bottomY }
+  ];
 
   loadedImages.forEach((image, index) => {
-    const y = PADDING + HEADER_HEIGHT + index * (SLOT_HEIGHT + SLOT_GAP);
+    const slot = slotPositions[index];
+    if (!slot) {
+      return;
+    }
 
-    context.fillStyle = "#f1ebe4";
-    context.fillRect(PADDING, y, INNER_WIDTH, SLOT_HEIGHT);
-    drawImageCover(context, image, PADDING, y, INNER_WIDTH, SLOT_HEIGHT);
+    context.fillStyle = "#d9d9dd";
+    context.fillRect(slot.x, slot.y, SLOT_WIDTH, SLOT_HEIGHT);
+    drawImageCover(context, image, slot.x, slot.y, SLOT_WIDTH, SLOT_HEIGHT);
 
-    context.strokeStyle = "rgba(16, 35, 63, 0.08)";
+    context.strokeStyle = "rgba(16, 35, 63, 0.06)";
     context.lineWidth = 2;
-    context.strokeRect(PADDING, y, INNER_WIDTH, SLOT_HEIGHT);
+    context.strokeRect(slot.x, slot.y, SLOT_WIDTH, SLOT_HEIGHT);
   });
+
+  const bandY = topY + SLOT_HEIGHT + Math.round((CENTER_BAND_HEIGHT - 28) / 2);
+  context.strokeStyle = "rgba(16, 35, 63, 0.14)";
+  context.lineWidth = 1;
+  context.beginPath();
+  context.moveTo(PAPER_PADDING, bandY - 10);
+  context.lineTo(CANVAS_WIDTH - PAPER_PADDING, bandY - 10);
+  context.moveTo(PAPER_PADDING, bandY + 18);
+  context.lineTo(CANVAS_WIDTH - PAPER_PADDING, bandY + 18);
+  context.stroke();
+
+  context.fillStyle = "#7a828f";
+  context.font = "700 12px Pretendard, SUIT, sans-serif";
+  context.textAlign = "center";
+  context.fillText("MEMORY FRAME", CANVAS_WIDTH / 2 - 155, bandY + 8);
+  context.fillText("KEEP YOURSELF ALIVE", CANVAS_WIDTH / 2 + 110, bandY + 8);
 
   context.strokeStyle = "rgba(16, 35, 63, 0.14)";
   context.lineWidth = 2;
-  context.strokeRect(PADDING, PADDING, INNER_WIDTH, canvasHeight - PADDING * 2);
+  context.strokeRect(PAPER_PADDING, PAPER_PADDING, INNER_WIDTH, CANVAS_HEIGHT - PAPER_PADDING * 2);
 
   context.fillStyle = "#677791";
-  context.font = "500 24px Pretendard, SUIT, sans-serif";
-  context.fillText(getFooterText(), CANVAS_WIDTH / 2, canvasHeight - PADDING - 40);
+  context.font = "600 14px Pretendard, SUIT, sans-serif";
+  context.fillText(getFooterText(), CANVAS_WIDTH / 2, CANVAS_HEIGHT - PAPER_PADDING - 24);
 }
 
 export async function downloadCanvasImage(
@@ -161,4 +197,26 @@ function getFooterText() {
   });
 
   return `${formatter.format(new Date())} | MADE WITH PIC MOMENT`;
+}
+
+function drawGridBackground(context: CanvasRenderingContext2D, width: number, height: number) {
+  context.save();
+  context.strokeStyle = "rgba(16, 35, 63, 0.05)";
+  context.lineWidth = 1;
+
+  for (let x = 0; x <= width; x += 20) {
+    context.beginPath();
+    context.moveTo(x, 0);
+    context.lineTo(x, height);
+    context.stroke();
+  }
+
+  for (let y = 0; y <= height; y += 20) {
+    context.beginPath();
+    context.moveTo(0, y);
+    context.lineTo(width, y);
+    context.stroke();
+  }
+
+  context.restore();
 }

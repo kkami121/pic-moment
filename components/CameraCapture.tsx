@@ -22,9 +22,14 @@ export default function CameraCapture() {
 
   const [shots, setShots] = useState<string[]>([]);
   const [retakeIndex, setRetakeIndex] = useState<number | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isCapturing, setIsCapturing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     const savedDraft = sessionStorage.getItem(DRAFT_STORAGE_KEY);
@@ -163,6 +168,16 @@ export default function CameraCapture() {
   const handleRetakeMode = useCallback((index: number) => {
     setRetakeIndex(index);
   }, []);
+
+  if (!isMounted) {
+    return (
+      <section className="panelCard" style={{ padding: 24 }}>
+        <div className="statusMessage" data-tone="info">
+          카메라 화면을 준비하고 있습니다.
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className={styles.layout}>
