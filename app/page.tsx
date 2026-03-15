@@ -3,7 +3,7 @@ import styles from "./page.module.css";
 
 export default function HomePage() {
   return (
-    <main className="appShell">
+    <main className={`appShell ${styles.page}`}>
       <div className={`contentWrap ${styles.hero}`}>
         <section className={`glassCard ${styles.heroPanel}`}>
           <span className="eyebrow">PIC MOMENT</span>
@@ -25,19 +25,6 @@ export default function HomePage() {
             <span className="chip">PNG / JPG 다운로드</span>
           </div>
         </section>
-
-        <aside className={styles.previewStage}>
-          <div className={styles.stripPaper}>
-            <div className={styles.stripTitle}>PIC MOMENT</div>
-            <div className={styles.stripSlots}>
-              {Array.from({ length: 4 }).map((_, index) => (
-                <div key={index} className={styles.stripSlot} />
-              ))}
-            </div>
-
-            <div className={styles.stripFooter}>MAKE YOUR OWN STRIP</div>
-          </div>
-        </aside>
       </div>
     </main>
   );

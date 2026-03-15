@@ -1,12 +1,23 @@
+.page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .hero {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 28px;
-  align-items: stretch;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 100%;
 }
 
 .heroPanel {
-  padding: clamp(28px, 5vw, 56px);
+  width: min(100%, 720px);
+  padding: clamp(28px, 4vw, 44px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
 .heroActions {
@@ -23,115 +34,19 @@
   margin-top: 22px;
 }
 
-.previewStage {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  min-width: 0;
-  min-height: 100%;
-  padding: 0;
-}
-
-.stripPaper {
-  position: relative;
-  width: 100%;
-  max-width: none;
-  margin: 0 auto;
-  padding: clamp(16px, 2.2vw, 26px);
-  background: linear-gradient(180deg, #fff8f3 0%, #fff3e8 100%);
-  border-radius: clamp(22px, 2.4vw, 30px);
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.28);
-}
-
-.stripTitle {
-  text-align: center;
-  color: #0f2443;
-  font-size: clamp(11px, 1.1vw, 14px);
-  font-weight: 800;
-  letter-spacing: 0.26em;
-}
-
-.stripSlots {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(10px, 1.1vw, 14px);
-  margin-top: clamp(12px, 1.5vw, 18px);
-}
-
-.stripSlot {
-  aspect-ratio: 1 / 1.08;
-  border-radius: clamp(14px, 1.6vw, 20px);
-  background:
-    linear-gradient(140deg, rgba(255, 122, 89, 0.18) 0%, rgba(16, 35, 63, 0.12) 100%),
-    #fff;
-  border: 1px solid rgba(15, 36, 67, 0.08);
-}
-
-.stripMiddle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-top: clamp(10px, 1.4vw, 16px);
-  padding: clamp(8px, 1vw, 12px) 4px;
-  border-top: 1px dashed rgba(15, 36, 67, 0.14);
-  border-bottom: 1px dashed rgba(15, 36, 67, 0.14);
-  color: rgba(15, 36, 67, 0.68);
-  font-size: clamp(9px, 0.95vw, 11px);
-  font-weight: 800;
-  letter-spacing: 0.08em;
-}
-
-.stripFooter {
-  margin-top: clamp(10px, 1.4vw, 16px);
-  padding-top: clamp(10px, 1.4vw, 16px);
-  border-top: 1px dashed rgba(15, 36, 67, 0.12);
-  text-align: center;
-  color: rgba(15, 36, 67, 0.68);
-  font-size: clamp(11px, 1.1vw, 13px);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-}
-
-.featureGrid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-  margin-top: 26px;
-}
-
-.featureCard {
-  padding: 20px;
-}
-
-.featureCard h3 {
-  margin: 0 0 10px;
-  font-size: 18px;
-}
-
-.featureCard p {
-  margin: 0;
-  color: var(--text-muted);
-  line-height: 1.7;
-}
-
 @media (max-width: 1023px) {
-  .hero {
-    grid-template-columns: 1fr;
+  .heroPanel {
+    width: min(100%, 680px);
+    justify-content: flex-start;
   }
+}
 
-  .previewStage {
+@media (max-width: 767px) {
+  .heroPanel {
+    width: 100%;
+    aspect-ratio: auto;
     min-height: auto;
-    padding: 0;
-  }
-
-  .stripPaper {
-    max-width: min(100%, 560px);
-  }
-
-  .featureGrid {
-    grid-template-columns: 1fr;
+    padding: 24px 20px;
+    border-radius: 28px;
   }
 }
