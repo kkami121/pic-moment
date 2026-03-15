@@ -219,7 +219,7 @@ export default function CameraCapture() {
             마지막 사진 삭제
           </button>
           <button type="button" className="dangerButton" onClick={handleReset} disabled={shots.length === 0}>
-            처음부터 다시
+            처음부터 다시 촬영
           </button>
         </div>
 
@@ -292,7 +292,7 @@ export default function CameraCapture() {
             onClick={handleGoToResult}
             disabled={shots.length !== REQUIRED_SHOTS}
           >
-            결과 확인하기
+            촬영 마무리
           </button>
         </div>
       </aside>

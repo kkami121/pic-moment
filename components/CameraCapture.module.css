@@ -62,7 +62,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 18px;
+  margin-top: 16px;
 }
 
 .helperText {
@@ -171,12 +171,14 @@
 
 .completePanel {
   margin-top: 18px;
+  display: flex;
+  justify-content: center;
 }
 
 @media (min-width: 1024px) {
   .previewFrame {
     aspect-ratio: auto;
-    height: min(56vh, 560px);
+    height: 100%;
   }
 }
 
