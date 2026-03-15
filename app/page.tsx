@@ -23,6 +23,7 @@ export default function HomePage() {
             <span className="chip">모바일/PC 카메라 지원</span>
             <span className="chip">다양한 프레임 지원</span>
             <span className="chip">PNG / JPG 다운로드</span>
+            <span className="chip">사진 꾸미기 가능</span>
           </div>
         </section>
       </div>
