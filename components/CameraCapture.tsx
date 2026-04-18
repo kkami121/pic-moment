@@ -152,11 +152,6 @@ export default function CameraCapture() {
     }
   }, [retakeIndex, selectedFilter]);
 
-const handleReset = useCallback(() => {
-    setRetakeIndex(null);
-    setShots([]);
-    sessionStorage.removeItem(RESULT_STORAGE_KEY);
-  }, []);
 
   const handleGoToResult = useCallback(() => {
     sessionStorage.setItem(RESULT_STORAGE_KEY, JSON.stringify(shots));
@@ -216,9 +211,6 @@ const handleReset = useCallback(() => {
         </div>
 
         <div className={styles.captureActions}>
-          <button type="button" className="secondaryButton" onClick={requestCamera}>
-            카메라 권한 요청
-          </button>
           <button
             type="button"
             className="primaryButton"
@@ -226,9 +218,6 @@ const handleReset = useCallback(() => {
             disabled={isLoading || isCapturing || (!!errorMessage && shots.length === 0) || (shots.length >= REQUIRED_SHOTS && retakeIndex === null)}
           >
             {retakeIndex !== null ? `${retakeIndex + 1}번째 컷 재촬영` : "사진 촬영하기"}
-          </button>
-          <button type="button" className="dangerButton" onClick={handleReset} disabled={shots.length === 0}>
-            처음부터 다시 촬영
           </button>
         </div>
 

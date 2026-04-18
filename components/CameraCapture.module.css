@@ -296,12 +296,6 @@
   justify-content: center;
 }
 
-@media (min-width: 1024px) {
-  .previewFrame {
-    aspect-ratio: auto;
-    height: 100%;
-  }
-}
 
 @media (max-width: 1023px) {
   .layout {

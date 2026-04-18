@@ -44,6 +44,8 @@ export function stopMediaStream(stream: MediaStream | null | undefined) {
   stream?.getTracks().forEach((track) => track.stop());
 }
 
+const CAPTURE_RATIO = 3 / 4; // width / height — 미리보기와 동일한 3:4 비율
+
 export function captureFrameToDataUrl(videoElement: HTMLVideoElement, canvasElement: HTMLCanvasElement, filterCss?: string) {
   const width = videoElement.videoWidth;
   const height = videoElement.videoHeight;
@@ -52,8 +54,20 @@ export function captureFrameToDataUrl(videoElement: HTMLVideoElement, canvasElem
     throw new Error("카메라 영상을 읽지 못했습니다. 잠시 후 다시 시도해 주세요.");
   }
 
-  canvasElement.width = width;
-  canvasElement.height = height;
+  // 카메라 원본을 3:4 비율로 중앙 크롭 — 미리보기에서 보이는 영역과 일치시킵니다.
+  let srcX = 0, srcY = 0, srcW = width, srcH = height;
+  const frameRatio = width / height;
+
+  if (frameRatio > CAPTURE_RATIO) {
+    srcW = Math.round(height * CAPTURE_RATIO);
+    srcX = Math.round((width - srcW) / 2);
+  } else if (frameRatio < CAPTURE_RATIO) {
+    srcH = Math.round(width / CAPTURE_RATIO);
+    srcY = Math.round((height - srcH) / 2);
+  }
+
+  canvasElement.width = srcW;
+  canvasElement.height = srcH;
 
   const context = canvasElement.getContext("2d");
   if (!context) {
@@ -64,9 +78,9 @@ export function captureFrameToDataUrl(videoElement: HTMLVideoElement, canvasElem
   if (filterCss && filterCss !== "none") {
     context.filter = filterCss;
   }
-  context.translate(width, 0);
+  context.translate(srcW, 0);
   context.scale(-1, 1);
-  context.drawImage(videoElement, 0, 0, width, height);
+  context.drawImage(videoElement, srcX, srcY, srcW, srcH, 0, 0, srcW, srcH);
   context.restore();
   return canvasElement.toDataURL("image/jpeg", 0.94);
 }
