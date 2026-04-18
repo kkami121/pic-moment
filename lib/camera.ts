@@ -47,7 +47,11 @@ export function captureFrameToDataUrl(videoElement: HTMLVideoElement, canvasElem
     throw new Error("캔버스를 초기화하지 못했습니다.");
   }
 
+  context.save();
+  context.translate(width, 0);
+  context.scale(-1, 1);
   context.drawImage(videoElement, 0, 0, width, height);
+  context.restore();
   return canvasElement.toDataURL("image/jpeg", 0.94);
 }
 

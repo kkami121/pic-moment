@@ -22,6 +22,7 @@ export default function CameraCapture() {
 
   const [shots, setShots] = useState<string[]>([]);
   const [retakeIndex, setRetakeIndex] = useState<number | null>(null);
+  const [previewShot, setPreviewShot] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isCapturing, setIsCapturing] = useState(false);
@@ -149,12 +150,7 @@ export default function CameraCapture() {
     }
   }, [retakeIndex]);
 
-  const handleRemoveLast = useCallback(() => {
-    setRetakeIndex(null);
-    setShots((previousShots) => previousShots.slice(0, -1));
-  }, []);
-
-  const handleReset = useCallback(() => {
+const handleReset = useCallback(() => {
     setRetakeIndex(null);
     setShots([]);
     sessionStorage.removeItem(RESULT_STORAGE_KEY);
@@ -180,6 +176,7 @@ export default function CameraCapture() {
   }
 
   return (
+    <>
     <section className={styles.layout}>
       <div className={`panelCard ${styles.cameraCard}`}>
         <div className={styles.previewFrame}>
@@ -204,19 +201,16 @@ export default function CameraCapture() {
         </div>
 
         <div className={styles.captureActions}>
+          <button type="button" className="secondaryButton" onClick={requestCamera}>
+            카메라 권한 요청
+          </button>
           <button
             type="button"
             className="primaryButton"
             onClick={handleCapture}
             disabled={isLoading || isCapturing || (!!errorMessage && shots.length === 0) || (shots.length >= REQUIRED_SHOTS && retakeIndex === null)}
           >
-            {retakeIndex !== null ? `${retakeIndex + 1}번째 다시 촬영` : "사진 촬영하기"}
-          </button>
-          <button type="button" className="secondaryButton" onClick={requestCamera}>
-            권한 다시 요청
-          </button>
-          <button type="button" className="ghostButton" onClick={handleRemoveLast} disabled={shots.length === 0}>
-            마지막 사진 삭제
+            {retakeIndex !== null ? `${retakeIndex + 1}번째 컷 재촬영` : "사진 촬영하기"}
           </button>
           <button type="button" className="dangerButton" onClick={handleReset} disabled={shots.length === 0}>
             처음부터 다시 촬영
@@ -241,11 +235,6 @@ export default function CameraCapture() {
           </span>
         </div>
 
-        {retakeIndex !== null && (
-          <div className="statusMessage" data-tone="info" style={{ marginBottom: 16 }}>
-            {retakeIndex + 1}번째 사진을 다시 찍는 중입니다. 촬영 버튼을 누르면 해당 컷이 교체됩니다.
-          </div>
-        )}
         <div className={styles.shotGrid}>
           {Array.from({ length: REQUIRED_SHOTS }).map((_, index) => {
             const shot = shots[index];
@@ -255,12 +244,29 @@ export default function CameraCapture() {
               <article key={index} className={`${styles.shotCard} ${isRetaking ? styles.retakeRing : ""}`}>
                 <div className={styles.shotHeader}>
                   <span className={styles.shotLabel}>{index + 1}번째 컷</span>
-                  {shot ? <span className="chip">촬영 완료</span> : <span className="chip">대기 중</span>}
+                  {shot ? (
+                    <button
+                      type="button"
+                      className={styles.retakeButton}
+                      onClick={() => handleRetakeMode(index)}
+                    >
+                      재촬영
+                    </button>
+                  ) : (
+                    <span className="chip">대기 중</span>
+                  )}
                 </div>
 
                 <div className={styles.shotThumbWrap}>
                   {shot ? (
-                    <img src={shot} alt={`${index + 1}번째 촬영 결과`} />
+                    <button
+                      type="button"
+                      className={styles.thumbButton}
+                      onClick={() => setPreviewShot(shot)}
+                      aria-label={`${index + 1}번째 컷 확대 보기`}
+                    >
+                      <img src={shot} alt={`${index + 1}번째 촬영 결과`} />
+                    </button>
                   ) : (
                     <div className={styles.shotEmpty}>촬영하면 이 위치에 사진이 표시됩니다.</div>
                   )}
@@ -283,5 +289,25 @@ export default function CameraCapture() {
         </div>
       </aside>
     </section>
+
+    {previewShot && (
+      <div className={styles.lightboxOverlay} onClick={() => setPreviewShot(null)}>
+        <button
+          type="button"
+          className={styles.lightboxClose}
+          onClick={() => setPreviewShot(null)}
+          aria-label="닫기"
+        >
+          ✕
+        </button>
+        <img
+          src={previewShot}
+          alt="확대 미리보기"
+          className={styles.lightboxImg}
+          onClick={(e) => e.stopPropagation()}
+        />
+      </div>
+    )}
+    </>
   );
 }
