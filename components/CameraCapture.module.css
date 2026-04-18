@@ -58,6 +58,55 @@
   z-index: 1;
 }
 
+.filterBar {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  overflow-x: auto;
+  padding: 2px 2px 8px;
+  scrollbar-width: none;
+}
+
+.filterBar::-webkit-scrollbar {
+  display: none;
+}
+
+.filterChip {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(16, 35, 63, 0.13);
+  background: rgba(16, 35, 63, 0.04);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, color 0.18s, box-shadow 0.18s;
+}
+
+.filterChip:hover {
+  background: rgba(16, 35, 63, 0.08);
+  border-color: rgba(16, 35, 63, 0.22);
+  color: var(--text-main);
+}
+
+.filterChipActive {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(239, 94, 55, 0.3);
+}
+
+.filterChipActive:hover {
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+}
+
 .captureActions {
   display: flex;
   flex-wrap: wrap;

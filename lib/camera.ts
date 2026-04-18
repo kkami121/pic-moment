@@ -1,6 +1,19 @@
 export const DRAFT_STORAGE_KEY = "life4cut-draft-images";
 export const RESULT_STORAGE_KEY = "life4cut-images";
 
+export type CameraFilter = { id: string; name: string; css: string };
+
+export const CAMERA_FILTERS: CameraFilter[] = [
+  { id: "none",    name: "없음",    css: "none" },
+  { id: "bw",      name: "흑백",    css: "grayscale(100%)" },
+  { id: "sepia",   name: "세피아",  css: "sepia(80%)" },
+  { id: "warm",    name: "따뜻하게", css: "sepia(30%) saturate(1.5) brightness(1.05)" },
+  { id: "vivid",   name: "선명하게", css: "saturate(1.9) contrast(1.1)" },
+  { id: "bright",  name: "밝게",    css: "brightness(1.35) contrast(0.85)" },
+  { id: "cool",    name: "차갑게",  css: "saturate(0.75) hue-rotate(20deg) brightness(1.05)" },
+  { id: "vintage", name: "빈티지",  css: "sepia(50%) contrast(1.15) brightness(0.88) saturate(0.8)" },
+];
+
 export async function getCameraStream(): Promise<MediaStream> {
   if (!navigator.mediaDevices?.getUserMedia) {
     throw new Error("이 브라우저는 카메라 기능을 지원하지 않습니다. 최신 Chrome, Safari, Edge 브라우저를 사용해 주세요.");
@@ -31,7 +44,7 @@ export function stopMediaStream(stream: MediaStream | null | undefined) {
   stream?.getTracks().forEach((track) => track.stop());
 }
 
-export function captureFrameToDataUrl(videoElement: HTMLVideoElement, canvasElement: HTMLCanvasElement) {
+export function captureFrameToDataUrl(videoElement: HTMLVideoElement, canvasElement: HTMLCanvasElement, filterCss?: string) {
   const width = videoElement.videoWidth;
   const height = videoElement.videoHeight;
 
@@ -48,6 +61,9 @@ export function captureFrameToDataUrl(videoElement: HTMLVideoElement, canvasElem
   }
 
   context.save();
+  if (filterCss && filterCss !== "none") {
+    context.filter = filterCss;
+  }
   context.translate(width, 0);
   context.scale(-1, 1);
   context.drawImage(videoElement, 0, 0, width, height);

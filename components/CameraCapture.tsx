@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  CAMERA_FILTERS,
   DRAFT_STORAGE_KEY,
   RESULT_STORAGE_KEY,
   captureFrameToDataUrl,
@@ -23,6 +24,7 @@ export default function CameraCapture() {
   const [shots, setShots] = useState<string[]>([]);
   const [retakeIndex, setRetakeIndex] = useState<number | null>(null);
   const [previewShot, setPreviewShot] = useState<string | null>(null);
+  const [selectedFilter, setSelectedFilter] = useState(CAMERA_FILTERS[0]);
   const [isMounted, setIsMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isCapturing, setIsCapturing] = useState(false);
@@ -124,7 +126,7 @@ export default function CameraCapture() {
     setIsCapturing(true);
 
     try {
-      const imageDataUrl = captureFrameToDataUrl(videoElement, captureCanvas);
+      const imageDataUrl = captureFrameToDataUrl(videoElement, captureCanvas, selectedFilter.css);
 
       setShots((previousShots) => {
         const nextShots = [...previousShots];
@@ -148,7 +150,7 @@ export default function CameraCapture() {
     } finally {
       setIsCapturing(false);
     }
-  }, [retakeIndex]);
+  }, [retakeIndex, selectedFilter]);
 
 const handleReset = useCallback(() => {
     setRetakeIndex(null);
@@ -184,7 +186,7 @@ const handleReset = useCallback(() => {
             <span>{retakeIndex !== null ? `${retakeIndex + 1}번째 재촬영 중` : "실시간 미리보기"}</span>
           </div>
 
-          <video ref={videoRef} autoPlay playsInline muted />
+          <video ref={videoRef} autoPlay playsInline muted style={{ filter: selectedFilter.css === "none" ? undefined : selectedFilter.css }} />
 
           {(isLoading || errorMessage) && (
             <div className={styles.previewFallback}>
@@ -198,6 +200,19 @@ const handleReset = useCallback(() => {
               </div>
             </div>
           )}
+        </div>
+
+        <div className={styles.filterBar}>
+          {CAMERA_FILTERS.map((filter) => (
+            <button
+              key={filter.id}
+              type="button"
+              className={`${styles.filterChip} ${selectedFilter.id === filter.id ? styles.filterChipActive : ""}`}
+              onClick={() => setSelectedFilter(filter)}
+            >
+              {filter.name}
+            </button>
+          ))}
         </div>
 
         <div className={styles.captureActions}>
