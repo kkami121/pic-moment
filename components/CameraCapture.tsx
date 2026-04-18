@@ -210,9 +210,23 @@ export default function CameraCapture() {
           </div>
 
           <div className={styles.filterIndicator}>
-            <span className={styles.filterArrow}>‹</span>
+            <button
+              type="button"
+              className={styles.filterArrow}
+              onClick={() => setSelectedFilter((prev: CameraFilter) => {
+                const i = CAMERA_FILTERS.findIndex((f) => f.id === prev.id);
+                return CAMERA_FILTERS[(i - 1 + CAMERA_FILTERS.length) % CAMERA_FILTERS.length];
+              })}
+            >‹</button>
             <span className={styles.filterName}>{selectedFilter.name}</span>
-            <span className={styles.filterArrow}>›</span>
+            <button
+              type="button"
+              className={styles.filterArrow}
+              onClick={() => setSelectedFilter((prev: CameraFilter) => {
+                const i = CAMERA_FILTERS.findIndex((f) => f.id === prev.id);
+                return CAMERA_FILTERS[(i + 1) % CAMERA_FILTERS.length];
+              })}
+            >›</button>
           </div>
 
           <video ref={videoRef} autoPlay playsInline muted style={{ filter: selectedFilter.css === "none" ? undefined : selectedFilter.css }} />
