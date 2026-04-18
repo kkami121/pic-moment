@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   CAMERA_FILTERS,
+  type CameraFilter,
   DRAFT_STORAGE_KEY,
   RESULT_STORAGE_KEY,
   captureFrameToDataUrl,
@@ -20,6 +21,7 @@ export default function CameraCapture() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const captureCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const swipeStartX = useRef<number | null>(null);
 
   const [shots, setShots] = useState<string[]>([]);
   const [retakeIndex, setRetakeIndex] = useState<number | null>(null);
@@ -162,6 +164,27 @@ export default function CameraCapture() {
     setRetakeIndex(index);
   }, []);
 
+  const handleSwipeStart = useCallback((e: { clientX: number }) => {
+    swipeStartX.current = e.clientX;
+  }, []);
+
+  const handleSwipeEnd = useCallback((e: { clientX: number }) => {
+    if (swipeStartX.current === null) return;
+    const deltaX = e.clientX - swipeStartX.current;
+    swipeStartX.current = null;
+
+    if (Math.abs(deltaX) < 40) return;
+
+    setSelectedFilter((prev: CameraFilter) => {
+      const currentIndex = CAMERA_FILTERS.findIndex((f) => f.id === prev.id);
+      if (deltaX < 0) {
+        return CAMERA_FILTERS[(currentIndex + 1) % CAMERA_FILTERS.length];
+      } else {
+        return CAMERA_FILTERS[(currentIndex - 1 + CAMERA_FILTERS.length) % CAMERA_FILTERS.length];
+      }
+    });
+  }, []);
+
   if (!isMounted) {
     return (
       <section className="panelCard" style={{ padding: 24 }}>
@@ -176,9 +199,20 @@ export default function CameraCapture() {
     <>
     <section className={styles.layout}>
       <div className={`panelCard ${styles.cameraCard}`}>
-        <div className={styles.previewFrame}>
+        <div
+          className={styles.previewFrame}
+          onPointerDown={handleSwipeStart}
+          onPointerUp={handleSwipeEnd}
+          onPointerLeave={() => { swipeStartX.current = null; }}
+        >
           <div className={styles.captureBadge}>
             <span>{retakeIndex !== null ? `${retakeIndex + 1}번째 재촬영 중` : "실시간 미리보기"}</span>
+          </div>
+
+          <div className={styles.filterIndicator}>
+            <span className={styles.filterArrow}>‹</span>
+            <span className={styles.filterName}>{selectedFilter.name}</span>
+            <span className={styles.filterArrow}>›</span>
           </div>
 
           <video ref={videoRef} autoPlay playsInline muted style={{ filter: selectedFilter.css === "none" ? undefined : selectedFilter.css }} />
@@ -195,19 +229,6 @@ export default function CameraCapture() {
               </div>
             </div>
           )}
-        </div>
-
-        <div className={styles.filterBar}>
-          {CAMERA_FILTERS.map((filter) => (
-            <button
-              key={filter.id}
-              type="button"
-              className={`${styles.filterChip} ${selectedFilter.id === filter.id ? styles.filterChipActive : ""}`}
-              onClick={() => setSelectedFilter(filter)}
-            >
-              {filter.name}
-            </button>
-          ))}
         </div>
 
         <div className={styles.captureActions}>

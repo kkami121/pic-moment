@@ -119,7 +119,7 @@ export async function downloadCanvasImage(
     link.download = fileName;
     document.body.appendChild(link);
     link.click();
-    link.remove();
+    link.parentNode?.removeChild(link);
   } finally {
     window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
   }
