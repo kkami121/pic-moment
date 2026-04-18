@@ -312,7 +312,7 @@
 
   .sideCard {
     min-height: 0;
-    overflow-y: auto;
+    overflow: hidden;
   }
 
   .previewFrame {
@@ -320,6 +320,28 @@
     min-height: 0;
     width: auto;
     align-self: center;
+    max-width: 100%;
+  }
+
+  .shotGrid {
+    flex: 1;
+    min-height: 0;
+    grid-template-rows: repeat(2, 1fr);
+    align-items: stretch;
+  }
+
+  .shotCard {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .shotThumbWrap {
+    flex: 1;
+    min-height: 0;
+    aspect-ratio: 3 / 4;
+    align-self: center;
+    width: auto;
     max-width: 100%;
   }
 }
