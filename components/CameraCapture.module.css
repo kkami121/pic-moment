@@ -327,6 +327,7 @@
 
   .completePanel {
     margin-top: 16px;
+    padding-top: 0;
   }
 }
 
