@@ -301,9 +301,26 @@
 
 
 @media (min-width: 1024px) {
+  .layout {
+    height: calc(100vh - 56px);
+  }
+
+  .cameraCard {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .sideCard {
+    min-height: 0;
+    overflow-y: auto;
+  }
+
   .previewFrame {
-    max-width: 500px;
-    margin: 0 auto;
+    flex: 1;
+    min-height: 0;
+    width: auto;
+    align-self: center;
+    max-width: 100%;
   }
 }
 
