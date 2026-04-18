@@ -320,15 +320,13 @@
     width: min(100%, calc((100vh - 164px) * 0.75));
   }
 
-  .shotGrid {
-    flex: 1;
-    min-height: 0;
-    align-content: space-evenly;
-  }
-
   .shotThumbWrap {
     align-self: center;
     width: min(100%, calc((50vh - 230px) * 0.75));
+  }
+
+  .completePanel {
+    margin-top: 16px;
   }
 }
 
