@@ -290,8 +290,9 @@
 
 @media (min-width: 1024px) {
   .previewFrame {
-    max-width: 500px;
-    margin: 0 auto;
+    flex: 1;
+    min-height: 0;
+    align-self: center;
   }
 }
 
