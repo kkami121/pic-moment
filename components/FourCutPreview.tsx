@@ -11,6 +11,7 @@ import {
   renderFourCutToCanvas,
   type FourCutTheme,
 } from "@/lib/canvas";
+import { useT } from "@/lib/localeContext";
 import styles from "./FourCutPreview.module.css";
 
 const REQUIRED_SHOTS = 4;
@@ -23,6 +24,7 @@ const STICKER_OPTIONS = [
 
 export default function FourCutPreview() {
   const router = useRouter();
+  const t = useT();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const [isMounted, setIsMounted] = useState(false);
@@ -73,7 +75,7 @@ export default function FourCutPreview() {
         await renderFourCutToCanvas(canvasRef.current, shots, { theme: selectedTheme, stickers });
       } catch (error) {
         if (!isCancelled) {
-          setErrorMessage(error instanceof Error ? error.message : "이미지를 합성하는 중 오류가 발생했습니다.");
+          setErrorMessage(t.renderError);
         }
       } finally {
         if (!isCancelled) setIsRendering(false);
@@ -85,15 +87,15 @@ export default function FourCutPreview() {
     return () => {
       isCancelled = true;
     };
-  }, [shots, selectedTheme, stickers]);
+  }, [shots, selectedTheme, stickers, t.renderError]);
 
   const handleDownload = async (format: "png" | "jpeg") => {
     if (!canvasRef.current) return;
     try {
       setErrorMessage(null);
       await downloadCanvasImage(canvasRef.current, format, buildLife4CutFilename(format));
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "다운로드에 실패했습니다. 다시 시도해 주세요.");
+    } catch {
+      setErrorMessage(t.downloadError);
     }
   };
 
@@ -114,7 +116,7 @@ export default function FourCutPreview() {
   if (!isMounted) {
     return (
       <section className={`panelCard ${styles.emptyState}`}>
-        <div className="statusMessage" data-tone="info">결과 화면을 준비하고 있습니다.</div>
+        <div className="statusMessage" data-tone="info">{t.resultInitializing}</div>
       </section>
     );
   }
@@ -122,12 +124,10 @@ export default function FourCutPreview() {
   if (shots.length !== REQUIRED_SHOTS) {
     return (
       <section className={`panelCard ${styles.emptyState}`}>
-        <div className="statusMessage" data-tone="info">
-          아직 4장의 촬영 데이터가 없습니다. 카메라 화면으로 이동해 4장을 모두 촬영한 뒤 결과를 확인해 주세요.
-        </div>
-        <p>모바일 브라우저에서는 새로고침 시 세션 데이터가 사라질 수 있으니, 촬영 직후 바로 저장하는 것을 권장합니다.</p>
+        <div className="statusMessage" data-tone="info">{t.resultNoShots}</div>
+        <p>{t.resultMobileHint}</p>
         <button type="button" className="primaryButton" onClick={() => router.push("/camera")}>
-          촬영 화면으로 이동
+          {t.goToCamera}
         </button>
       </section>
     );
@@ -140,7 +140,7 @@ export default function FourCutPreview() {
           <canvas ref={canvasRef} className={styles.previewCanvas} />
           {isRendering && (
             <div className={styles.renderingOverlay}>
-              <span>합성 중...</span>
+              <span>{t.rendering}</span>
             </div>
           )}
         </div>
@@ -153,14 +153,14 @@ export default function FourCutPreview() {
             className={`${styles.tab} ${activeTab === "frame" ? styles.tabActive : ""}`}
             onClick={() => setActiveTab("frame")}
           >
-            프레임
+            {t.frameTab}
           </button>
           <button
             type="button"
             className={`${styles.tab} ${activeTab === "sticker" ? styles.tabActive : ""}`}
             onClick={() => setActiveTab("sticker")}
           >
-            스티커
+            {t.stickerTab}
           </button>
         </div>
 
@@ -188,7 +188,7 @@ export default function FourCutPreview() {
 
           {activeTab === "sticker" && (
             <>
-              <p className={styles.stickerHint}>최대 5개 선택 · 중간 띠에 배치됩니다</p>
+              <p className={styles.stickerHint}>{t.stickerHint}</p>
               <div className={styles.stickerGrid}>
                 {STICKER_OPTIONS.map((emoji) => (
                   <button
@@ -204,7 +204,7 @@ export default function FourCutPreview() {
               </div>
               {stickers.length > 0 && (
                 <button type="button" className={styles.clearBtn} onClick={() => setStickers([])}>
-                  선택 초기화
+                  {t.clearSelection}
                 </button>
               )}
             </>
@@ -216,13 +216,13 @@ export default function FourCutPreview() {
             <div className="statusMessage" data-tone="error">{errorMessage}</div>
           )}
           <button type="button" className="primaryButton" onClick={() => handleDownload("png")} disabled={isRendering}>
-            PNG 다운로드
+            {t.downloadPng}
           </button>
           <button type="button" className="secondaryButton" onClick={() => handleDownload("jpeg")} disabled={isRendering}>
-            JPG 다운로드
+            {t.downloadJpg}
           </button>
           <button type="button" className="ghostButton" onClick={handleRestart}>
-            다시 촬영하기
+            {t.reshoot}
           </button>
         </div>
       </aside>

@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import type { Metadata, Viewport } from "next";
+import { cookies } from "next/headers";
+import { LocaleProvider } from "@/lib/localeContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -22,10 +24,15 @@ type RootLayoutProps = Readonly<{
   children: ReactNode;
 }>;
 
-export default function RootLayout({ children }: RootLayoutProps) {
+export default async function RootLayout({ children }: RootLayoutProps) {
+  const locale = (await cookies()).get("NEXT_LOCALE")?.value ?? "ko";
   return (
-    <html lang="ko" suppressHydrationWarning>
-      <body suppressHydrationWarning>{children}</body>
+    <html lang={locale} suppressHydrationWarning>
+      <body suppressHydrationWarning>
+        <LocaleProvider locale={locale}>
+          {children}
+        </LocaleProvider>
+      </body>
     </html>
   );
 }

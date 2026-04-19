@@ -5,19 +5,22 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   CAMERA_FILTERS,
   type CameraFilter,
+  type CameraErrorKey,
   DRAFT_STORAGE_KEY,
   RESULT_STORAGE_KEY,
   captureFrameToDataUrl,
-  getCameraErrorMessage,
+  getCameraErrorKey,
   getCameraStream,
   stopMediaStream
 } from "@/lib/camera";
+import { useT } from "@/lib/localeContext";
 import styles from "./CameraCapture.module.css";
 
 const REQUIRED_SHOTS = 4;
 
 export default function CameraCapture() {
   const router = useRouter();
+  const t = useT();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const captureCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -31,6 +34,8 @@ export default function CameraCapture() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCapturing, setIsCapturing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const cameraError = useCallback((key: CameraErrorKey) => t[key], [t]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -75,7 +80,7 @@ export default function CameraCapture() {
       streamRef.current = mediaStream;
 
       if (!videoElement) {
-        throw new Error("카메라 미리보기 요소를 찾을 수 없습니다.");
+        throw new Error("cameraPreviewMissing");
       }
 
       videoElement.srcObject = mediaStream;
@@ -96,11 +101,11 @@ export default function CameraCapture() {
         videoElement.addEventListener("loadedmetadata", handleLoaded);
       });
     } catch (error) {
-      setErrorMessage(getCameraErrorMessage(error));
+      setErrorMessage(cameraError(getCameraErrorKey(error)));
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [cameraError]);
 
   useEffect(() => {
     void requestCamera();
@@ -116,24 +121,23 @@ export default function CameraCapture() {
     const captureCanvas = captureCanvasRef.current;
 
     if (!videoElement || !captureCanvas) {
-      setErrorMessage("카메라 캡처 준비가 완료되지 않았습니다. 잠시 후 다시 시도해 주세요.");
+      setErrorMessage(t.captureNotReady);
       return;
     }
 
     if (videoElement.videoWidth === 0 || videoElement.videoHeight === 0) {
-      setErrorMessage("카메라 화면을 아직 불러오는 중입니다. 잠시 후 다시 촬영해 주세요.");
+      setErrorMessage(t.cameraVideoLoading);
       return;
     }
 
     setIsCapturing(true);
 
     try {
-      const imageDataUrl = captureFrameToDataUrl(videoElement, captureCanvas, selectedFilter.css);
+      const imageDataUrl = captureFrameToDataUrl(videoElement, captureCanvas, selectedFilter!.css);
 
       setShots((previousShots) => {
         const nextShots = [...previousShots];
 
-        // 재촬영 모드에서는 기존 슬롯을 교체하고, 일반 촬영은 뒤에 이어 붙입니다.
         if (retakeIndex !== null) {
           nextShots[retakeIndex] = imageDataUrl;
           return nextShots;
@@ -148,11 +152,11 @@ export default function CameraCapture() {
 
       setRetakeIndex(null);
     } catch (error) {
-      setErrorMessage(getCameraErrorMessage(error));
+      setErrorMessage(cameraError(getCameraErrorKey(error)));
     } finally {
       setIsCapturing(false);
     }
-  }, [retakeIndex, selectedFilter]);
+  }, [retakeIndex, selectedFilter, t, cameraError]);
 
 
   const handleGoToResult = useCallback(() => {
@@ -189,7 +193,7 @@ export default function CameraCapture() {
     return (
       <section className="panelCard" style={{ padding: 24 }}>
         <div className="statusMessage" data-tone="info">
-          카메라 화면을 준비하고 있습니다.
+          {t.cameraInitializing}
         </div>
       </section>
     );
@@ -206,7 +210,11 @@ export default function CameraCapture() {
           onPointerLeave={() => { swipeStartX.current = null; }}
         >
           <div className={styles.captureBadge}>
-            <span>{retakeIndex !== null ? `${retakeIndex + 1}번째 재촬영 중` : "실시간 미리보기"}</span>
+            <span>
+              {retakeIndex !== null
+                ? t.retakingLabel.replace("{n}", String(retakeIndex + 1))
+                : t.livePreview}
+            </span>
           </div>
 
           <div className={styles.filterIndicator}>
@@ -218,7 +226,7 @@ export default function CameraCapture() {
                 return CAMERA_FILTERS[(i - 1 + CAMERA_FILTERS.length) % CAMERA_FILTERS.length];
               })}
             >‹</button>
-            <span className={styles.filterName}>{selectedFilter.name}</span>
+            <span className={styles.filterName}>{selectedFilter!.name}</span>
             <button
               type="button"
               className={styles.filterArrow}
@@ -229,12 +237,12 @@ export default function CameraCapture() {
             >›</button>
           </div>
 
-          <video ref={videoRef} autoPlay playsInline muted style={{ filter: selectedFilter.css === "none" ? undefined : selectedFilter.css }} />
+          <video ref={videoRef} autoPlay playsInline muted style={{ filter: selectedFilter!.css === "none" ? undefined : selectedFilter!.css }} />
 
           {(isLoading || errorMessage) && (
             <div className={styles.previewFallback}>
               <div>
-                {isLoading && <p>카메라를 준비하고 있어요. 잠시만 기다려 주세요.</p>}
+                {isLoading && <p>{t.cameraLoading}</p>}
                 {errorMessage && (
                   <div className="statusMessage" data-tone="error">
                     {errorMessage}
@@ -252,25 +260,25 @@ export default function CameraCapture() {
             onClick={handleCapture}
             disabled={isLoading || isCapturing || (!!errorMessage && shots.length === 0) || (shots.length >= REQUIRED_SHOTS && retakeIndex === null)}
           >
-            {retakeIndex !== null ? `${retakeIndex + 1}번째 컷 재촬영` : "사진 촬영하기"}
+            {retakeIndex !== null
+              ? t.retakeButtonLabel.replace("{n}", String(retakeIndex + 1))
+              : t.captureButton}
           </button>
         </div>
 
-        {/*<p className={styles.helperText}>
-          권한 거부 시 브라우저 설정에서 카메라 접근을 다시 허용해 주세요.
-        </p>*/}
-        
         <canvas ref={captureCanvasRef} hidden />
       </div>
 
       <aside className={`panelCard ${styles.sideCard}`}>
         <div className={styles.sideHead}>
           <div>
-            <span className="eyebrow">Poto Status</span>
-            <h2>촬영 현황</h2>
+            <span className="eyebrow">{t.photoStatusEyebrow}</span>
+            <h2>{t.shootingStatus}</h2>
           </div>
           <span className="chip">
-            {shots.length} / {REQUIRED_SHOTS}장 완료
+            {t.shotsCompleteLabel
+              .replace("{shots}", String(shots.length))
+              .replace("{total}", String(REQUIRED_SHOTS))}
           </span>
         </div>
 
@@ -282,17 +290,19 @@ export default function CameraCapture() {
             return (
               <article key={index} className={`${styles.shotCard} ${isRetaking ? styles.retakeRing : ""}`}>
                 <div className={styles.shotHeader}>
-                  <span className={styles.shotLabel}>{index + 1}번째 컷</span>
+                  <span className={styles.shotLabel}>
+                    {t.cutLabel.replace("{n}", String(index + 1))}
+                  </span>
                   {shot ? (
                     <button
                       type="button"
                       className={styles.retakeButton}
                       onClick={() => handleRetakeMode(index)}
                     >
-                      재촬영
+                      {t.retakeLabel}
                     </button>
                   ) : (
-                    <span className="chip">대기 중</span>
+                    <span className="chip">{t.waitingLabel}</span>
                   )}
                 </div>
 
@@ -302,12 +312,12 @@ export default function CameraCapture() {
                       type="button"
                       className={styles.thumbButton}
                       onClick={() => setPreviewShot(shot)}
-                      aria-label={`${index + 1}번째 컷 확대 보기`}
+                      aria-label={t.cutLabel.replace("{n}", String(index + 1))}
                     >
-                      <img src={shot} alt={`${index + 1}번째 촬영 결과`} />
+                      <img src={shot} alt={t.cutLabel.replace("{n}", String(index + 1))} />
                     </button>
                   ) : (
-                    <div className={styles.shotEmpty}>촬영하면 이 위치에 사진이 표시됩니다.</div>
+                    <div className={styles.shotEmpty}>{t.shotEmptyText}</div>
                   )}
                 </div>
 
@@ -323,7 +333,7 @@ export default function CameraCapture() {
             onClick={handleGoToResult}
             disabled={shots.length !== REQUIRED_SHOTS}
           >
-            촬영 마무리
+            {t.finishButton}
           </button>
         </div>
       </aside>

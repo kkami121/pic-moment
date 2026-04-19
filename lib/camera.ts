@@ -85,6 +85,29 @@ export function captureFrameToDataUrl(videoElement: HTMLVideoElement, canvasElem
   return canvasElement.toDataURL("image/jpeg", 0.94);
 }
 
+export type CameraErrorKey =
+  | "cameraNotSupported"
+  | "cameraPermissionDenied"
+  | "cameraNotFound"
+  | "cameraBusy"
+  | "cameraOverconstrained"
+  | "cameraSecurity"
+  | "cameraGeneric"
+  | "cameraPreviewMissing"
+  | "cameraVideoLoading"
+  | "captureNotReady";
+
+export function getCameraErrorKey(error: unknown): CameraErrorKey {
+  if (error instanceof DOMException) {
+    if (error.name === "NotAllowedError" || error.name === "PermissionDeniedError") return "cameraPermissionDenied";
+    if (error.name === "NotFoundError" || error.name === "DevicesNotFoundError") return "cameraNotFound";
+    if (error.name === "NotReadableError" || error.name === "TrackStartError") return "cameraBusy";
+    if (error.name === "OverconstrainedError") return "cameraOverconstrained";
+    if (error.name === "SecurityError") return "cameraSecurity";
+  }
+  return "cameraGeneric";
+}
+
 export function getCameraErrorMessage(error: unknown) {
   if (error instanceof DOMException) {
     if (error.name === "NotAllowedError" || error.name === "PermissionDeniedError") {
