@@ -1,17 +1,25 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   DRAFT_STORAGE_KEY,
+  FOURCUT_THEMES,
   RESULT_STORAGE_KEY,
   buildLife4CutFilename,
   downloadCanvasImage,
-  renderFourCutToCanvas
+  renderFourCutToCanvas,
+  type FourCutTheme,
 } from "@/lib/canvas";
 import styles from "./FourCutPreview.module.css";
 
 const REQUIRED_SHOTS = 4;
+
+const STICKER_OPTIONS = [
+  "🌸", "✨", "💫", "🌟", "💝", "🎀", "🌈", "🦋",
+  "🌙", "⭐", "🍀", "🌺", "💐", "🎊", "🎉", "🫧",
+  "🩷", "🩵", "💛", "🤍",
+];
 
 export default function FourCutPreview() {
   const router = useRouter();
@@ -21,6 +29,9 @@ export default function FourCutPreview() {
   const [shots, setShots] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isRendering, setIsRendering] = useState(true);
+  const [selectedTheme, setSelectedTheme] = useState<FourCutTheme>(FOURCUT_THEMES[0]!);
+  const [stickers, setStickers] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState<"frame" | "sticker">("frame");
 
   useEffect(() => {
     setIsMounted(true);
@@ -53,24 +64,19 @@ export default function FourCutPreview() {
     let isCancelled = false;
 
     const renderCanvas = async () => {
-      if (shots.length !== REQUIRED_SHOTS || !canvasRef.current) {
-        return;
-      }
+      if (shots.length !== REQUIRED_SHOTS || !canvasRef.current) return;
 
       setIsRendering(true);
       setErrorMessage(null);
 
       try {
-        // 클라이언트에서만 Canvas 합성을 수행해 브라우저 저장 흐름과 자연스럽게 연결합니다.
-        await renderFourCutToCanvas(canvasRef.current, shots);
+        await renderFourCutToCanvas(canvasRef.current, shots, { theme: selectedTheme, stickers });
       } catch (error) {
         if (!isCancelled) {
           setErrorMessage(error instanceof Error ? error.message : "이미지를 합성하는 중 오류가 발생했습니다.");
         }
       } finally {
-        if (!isCancelled) {
-          setIsRendering(false);
-        }
+        if (!isCancelled) setIsRendering(false);
       }
     };
 
@@ -79,13 +85,10 @@ export default function FourCutPreview() {
     return () => {
       isCancelled = true;
     };
-  }, [shots]);
+  }, [shots, selectedTheme, stickers]);
 
   const handleDownload = async (format: "png" | "jpeg") => {
-    if (!canvasRef.current) {
-      return;
-    }
-
+    if (!canvasRef.current) return;
     try {
       setErrorMessage(null);
       await downloadCanvasImage(canvasRef.current, format, buildLife4CutFilename(format));
@@ -100,12 +103,18 @@ export default function FourCutPreview() {
     router.push("/camera");
   };
 
+  const toggleSticker = useCallback((emoji: string) => {
+    setStickers((prev) => {
+      if (prev.includes(emoji)) return prev.filter((s) => s !== emoji);
+      if (prev.length >= 5) return prev;
+      return [...prev, emoji];
+    });
+  }, []);
+
   if (!isMounted) {
     return (
       <section className={`panelCard ${styles.emptyState}`}>
-        <div className="statusMessage" data-tone="info">
-          결과 화면을 준비하고 있습니다.
-        </div>
+        <div className="statusMessage" data-tone="info">결과 화면을 준비하고 있습니다.</div>
       </section>
     );
   }
@@ -129,9 +138,83 @@ export default function FourCutPreview() {
       <div className={`panelCard ${styles.previewCard}`}>
         <div className={styles.canvasWrap}>
           <canvas ref={canvasRef} className={styles.previewCanvas} />
+          {isRendering && (
+            <div className={styles.renderingOverlay}>
+              <span>합성 중...</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <aside className={`panelCard ${styles.decorCard}`}>
+        <div className={styles.tabBar}>
+          <button
+            type="button"
+            className={`${styles.tab} ${activeTab === "frame" ? styles.tabActive : ""}`}
+            onClick={() => setActiveTab("frame")}
+          >
+            프레임
+          </button>
+          <button
+            type="button"
+            className={`${styles.tab} ${activeTab === "sticker" ? styles.tabActive : ""}`}
+            onClick={() => setActiveTab("sticker")}
+          >
+            스티커
+          </button>
         </div>
 
-        <div className={styles.buttonRow}>
+        <div className={styles.tabContent}>
+          {activeTab === "frame" && (
+            <div className={styles.themeGrid}>
+              {FOURCUT_THEMES.map((theme) => (
+                <button
+                  key={theme.id}
+                  type="button"
+                  className={`${styles.themeSwatch} ${selectedTheme.id === theme.id ? styles.themeSelected : ""}`}
+                  onClick={() => setSelectedTheme(theme)}
+                  aria-label={theme.name}
+                >
+                  <span className={styles.swatchPreview}>
+                    <span style={{ background: theme.frameColor }} />
+                    <span style={{ background: theme.accentColor }} />
+                    <span style={{ background: theme.paperColor }} />
+                  </span>
+                  <span className={styles.swatchName}>{theme.name}</span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {activeTab === "sticker" && (
+            <>
+              <p className={styles.stickerHint}>최대 5개 선택 · 중간 띠에 배치됩니다</p>
+              <div className={styles.stickerGrid}>
+                {STICKER_OPTIONS.map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    className={`${styles.stickerBtn} ${stickers.includes(emoji) ? styles.stickerSelected : ""}`}
+                    onClick={() => toggleSticker(emoji)}
+                    aria-label={emoji}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+              {stickers.length > 0 && (
+                <button type="button" className={styles.clearBtn} onClick={() => setStickers([])}>
+                  선택 초기화
+                </button>
+              )}
+            </>
+          )}
+        </div>
+
+        <div className={styles.actions}>
+          {errorMessage && (
+            <div className="statusMessage" data-tone="error">{errorMessage}</div>
+          )}
           <button type="button" className="primaryButton" onClick={() => handleDownload("png")} disabled={isRendering}>
             PNG 다운로드
           </button>
@@ -141,41 +224,6 @@ export default function FourCutPreview() {
           <button type="button" className="ghostButton" onClick={handleRestart}>
             다시 촬영하기
           </button>
-        </div>
-
-        {isRendering && (
-          <div className="statusMessage" data-tone="info" style={{ marginTop: 16 }}>
-            4컷 이미지를 합성하고 있습니다.
-          </div>
-        )}
-
-        {errorMessage && (
-          <div className="statusMessage" data-tone="error" style={{ marginTop: 16 }}>
-            {errorMessage}
-          </div>
-        )}
-      </div>
-
-      <aside className={`panelCard ${styles.infoCard}`}>
-        <span className="eyebrow">Preview Detail</span>
-        <h2 style={{ margin: "10px 0 0", fontSize: 28 }}>다운로드 전 확인</h2>
-        <p className="sectionText" style={{ marginTop: 12 }}>
-          포토 결과는 2 x 2 포토부스 레이아웃의 고정 비율 캔버스로 생성됩니다. 다운로드 파일명은 촬영 시각 기준
-          `life4cut-YYYYMMDD-HHmmss` 형식으로 저장됩니다.
-        </p>
-
-        <div className={styles.shotList}>
-          {shots.map((shot, index) => (
-            <div key={index} className={styles.shotItem}>
-              <img src={shot} alt={`${index + 1}번째 컷 썸네일`} />
-              <div>
-                <strong>{index + 1}번째 컷</strong>
-                <span style={{ color: "var(--text-muted)", lineHeight: 1.7 }}>
-                  촬영한 순서대로 1, 2 / 3, 4 배치로 들어갑니다.
-                </span>
-              </div>
-            </div>
-          ))}
         </div>
       </aside>
     </section>

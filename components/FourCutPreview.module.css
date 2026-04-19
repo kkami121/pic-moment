@@ -1,17 +1,23 @@
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(320px, 0.8fr);
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
   gap: 24px;
 }
 
-.previewCard,
-.infoCard {
+.previewCard {
   padding: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .canvasWrap {
-  display: grid;
-  place-items: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
   padding: 22px;
   border-radius: 28px;
   background:
@@ -20,47 +26,175 @@
 }
 
 .previewCanvas {
-  width: min(100%, 360px);
+  width: min(100%, calc((100vh - 100px) * 0.66));
   height: auto;
   border-radius: 24px;
   background: #fff;
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.22);
 }
 
-.buttonRow {
+.renderingOverlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 28px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.decorCard {
+  padding: 22px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 18px;
+  flex-direction: column;
 }
 
-.shotList {
-  display: grid;
-  gap: 12px;
-  margin-top: 18px;
-}
-
-.shotItem {
-  display: grid;
-  grid-template-columns: 72px 1fr;
-  gap: 12px;
-  align-items: center;
-  padding: 12px;
+.tabBar {
+  display: flex;
+  gap: 4px;
+  padding: 6px;
   border-radius: 18px;
-  border: 1px solid var(--line);
-  background: #fffdfb;
+  background: rgba(16, 35, 63, 0.06);
+  margin-bottom: 20px;
+  flex-shrink: 0;
 }
 
-.shotItem img {
-  width: 72px;
-  height: 96px;
-  object-fit: cover;
+.tab {
+  flex: 1;
+  padding: 10px;
+  border: none;
   border-radius: 14px;
+  background: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
 }
 
-.shotItem strong {
+.tabActive {
+  background: #fff;
+  color: var(--text-main);
+  box-shadow: 0 2px 8px rgba(16, 35, 63, 0.12);
+}
+
+.tabContent {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.themeGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.themeSwatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 8px;
+  border-radius: 18px;
+  border: 2px solid transparent;
+  background: rgba(16, 35, 63, 0.04);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.themeSwatch:hover {
+  background: rgba(16, 35, 63, 0.08);
+}
+
+.themeSelected {
+  border-color: var(--accent);
+  background: rgba(255, 122, 89, 0.08);
+}
+
+.swatchPreview {
+  display: flex;
+  gap: 3px;
+  width: 48px;
+  height: 36px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.swatchPreview span {
+  flex: 1;
   display: block;
-  margin-bottom: 4px;
+}
+
+.swatchName {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.stickerHint {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.stickerGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.stickerBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  padding: 10px;
+  border-radius: 14px;
+  border: 2px solid transparent;
+  background: rgba(16, 35, 63, 0.04);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  line-height: 1;
+}
+
+.stickerBtn:hover {
+  background: rgba(16, 35, 63, 0.08);
+}
+
+.stickerSelected {
+  border-color: var(--accent);
+  background: rgba(255, 122, 89, 0.1);
+}
+
+.clearBtn {
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(16, 35, 63, 0.15);
+  background: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.clearBtn:hover {
+  background: rgba(16, 35, 63, 0.06);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  flex-shrink: 0;
 }
 
 .emptyState {
@@ -73,19 +207,39 @@
   line-height: 1.7;
 }
 
+@media (min-width: 1024px) {
+  .layout {
+    height: calc(100vh - 56px);
+  }
+
+  .previewCard,
+  .decorCard {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .tabContent {
+    overflow-y: auto;
+  }
+}
+
 @media (max-width: 1023px) {
   .layout {
     grid-template-columns: 1fr;
+  }
+
+  .previewCanvas {
+    width: min(100%, 400px);
   }
 }
 
 @media (max-width: 767px) {
   .previewCard,
-  .infoCard {
+  .decorCard {
     padding: 16px;
   }
 
-  .buttonRow {
-    flex-direction: column;
+  .previewCanvas {
+    width: min(100%, 320px);
   }
 }
