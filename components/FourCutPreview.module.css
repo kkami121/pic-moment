@@ -10,14 +10,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: fit-content;
-  justify-self: center;
-  align-self: center;
 }
 
 .previewCanvas {
   display: block;
-  width: min(480px, calc((100vh - 120px) * 0.66));
+  width: min(480px, 90vw);
   height: auto;
   border-radius: 12px;
   background: #fff;
@@ -203,6 +200,16 @@
     height: calc(100vh - 56px);
   }
 
+  .previewCard {
+    min-height: 0;
+  }
+
+  .previewCanvas {
+    width: auto;
+    height: calc(100% - 32px);
+    max-width: 100%;
+  }
+
   .decorCard {
     min-height: 0;
     overflow: hidden;
@@ -216,10 +223,6 @@
 @media (max-width: 1023px) {
   .layout {
     grid-template-columns: 1fr;
-  }
-
-  .previewCard {
-    justify-self: center;
   }
 
   .previewCanvas {
