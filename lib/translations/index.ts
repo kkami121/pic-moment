@@ -8,6 +8,9 @@ export type Translations = {
   chipFrames: string;
   chipDecorate: string;
 
+  // Camera filter names (keyed by filter id)
+  filterNames: Record<string, string>;
+
   // Camera page — status / badge
   cameraInitializing: string;
   cameraLoading: string;
@@ -60,6 +63,7 @@ export type Translations = {
 // ─── Korean ───────────────────────────────────────────────────────────────────
 
 const ko: Translations = {
+  filterNames: { none: "없음", bw: "흑백", sepia: "세피아", warm: "따뜻하게", vivid: "선명하게", bright: "밝게", cool: "차갑게", vintage: "빈티지" },
   heroTitle: "당신의 오늘을 남겨보세요.",
   heroDesc: "앱 설치 없이 브라우저에서 바로 촬영하고, 프레임을 선택 후 이미지를 다운로드하세요.",
   startButton: "시작하기",
@@ -115,6 +119,7 @@ const ko: Translations = {
 // ─── English ──────────────────────────────────────────────────────────────────
 
 const en: Translations = {
+  filterNames: { none: "None", bw: "B&W", sepia: "Sepia", warm: "Warm", vivid: "Vivid", bright: "Bright", cool: "Cool", vintage: "Vintage" },
   heroTitle: "Capture your today.",
   heroDesc: "No app needed — shoot directly in your browser, pick a frame, and download your photo.",
   startButton: "Get Started",
@@ -170,6 +175,7 @@ const en: Translations = {
 // ─── Japanese ─────────────────────────────────────────────────────────────────
 
 const ja: Translations = {
+  filterNames: { none: "なし", bw: "モノクロ", sepia: "セピア", warm: "温かみ", vivid: "鮮やか", bright: "明るく", cool: "クール", vintage: "ビンテージ" },
   heroTitle: "あなたの今日を残しましょう。",
   heroDesc: "アプリ不要 — ブラウザで撮影して、フレームを選び、写真をダウンロードできます。",
   startButton: "はじめる",
@@ -225,6 +231,7 @@ const ja: Translations = {
 // ─── Chinese ──────────────────────────────────────────────────────────────────
 
 const zh: Translations = {
+  filterNames: { none: "无", bw: "黑白", sepia: "褪色", warm: "暖色", vivid: "鲜艳", bright: "明亮", cool: "冷色", vintage: "复古" },
   heroTitle: "记录你的今天。",
   heroDesc: "无需安装应用 — 直接在浏览器中拍照，选择边框，下载照片。",
   startButton: "开始",
@@ -280,6 +287,7 @@ const zh: Translations = {
 // ─── Indonesian ───────────────────────────────────────────────────────────────
 
 const id: Translations = {
+  filterNames: { none: "Tidak ada", bw: "Hitam putih", sepia: "Sepia", warm: "Hangat", vivid: "Cerah", bright: "Terang", cool: "Dingin", vintage: "Vintage" },
   heroTitle: "Abadikan harimu.",
   heroDesc: "Tanpa instal aplikasi — foto langsung dari browser, pilih bingkai, dan unduh.",
   startButton: "Mulai",
@@ -335,6 +343,7 @@ const id: Translations = {
 // ─── Spanish ──────────────────────────────────────────────────────────────────
 
 const es: Translations = {
+  filterNames: { none: "Sin filtro", bw: "B/N", sepia: "Sepia", warm: "Cálido", vivid: "Vívido", bright: "Brillante", cool: "Frío", vintage: "Vintage" },
   heroTitle: "Captura tu hoy.",
   heroDesc: "Sin instalar nada — toma fotos desde el navegador, elige un marco y descárgalas.",
   startButton: "Comenzar",
@@ -390,6 +399,7 @@ const es: Translations = {
 // ─── Arabic ───────────────────────────────────────────────────────────────────
 
 const ar: Translations = {
+  filterNames: { none: "بلا فلتر", bw: "أبيض وأسود", sepia: "سيبيا", warm: "دافئ", vivid: "زاهي", bright: "مضيء", cool: "بارد", vintage: "كلاسيكي" },
   heroTitle: "سجّل يومك.",
   heroDesc: "بدون تثبيت تطبيق — التقط الصور مباشرة من المتصفح، واختر إطارًا، ونزّل صورتك.",
   startButton: "ابدأ",
@@ -445,6 +455,7 @@ const ar: Translations = {
 // ─── French ───────────────────────────────────────────────────────────────────
 
 const fr: Translations = {
+  filterNames: { none: "Aucun", bw: "N&B", sepia: "Sépia", warm: "Chaud", vivid: "Vif", bright: "Lumineux", cool: "Froid", vintage: "Vintage" },
   heroTitle: "Capturez votre aujourd'hui.",
   heroDesc: "Sans installation — prenez des photos depuis le navigateur, choisissez un cadre et téléchargez.",
   startButton: "Commencer",
@@ -500,6 +511,7 @@ const fr: Translations = {
 // ─── Russian ──────────────────────────────────────────────────────────────────
 
 const ru: Translations = {
+  filterNames: { none: "Без фильтра", bw: "Ч/Б", sepia: "Сепия", warm: "Тёплый", vivid: "Яркий", bright: "Светлый", cool: "Холодный", vintage: "Винтаж" },
   heroTitle: "Запечатлейте ваш день.",
   heroDesc: "Без установки приложений — снимайте в браузере, выбирайте рамку и скачивайте фото.",
   startButton: "Начать",
@@ -555,6 +567,7 @@ const ru: Translations = {
 // ─── Portuguese ───────────────────────────────────────────────────────────────
 
 const pt: Translations = {
+  filterNames: { none: "Sem filtro", bw: "P&B", sepia: "Sépia", warm: "Quente", vivid: "Vívido", bright: "Brilhante", cool: "Frio", vintage: "Vintage" },
   heroTitle: "Capture o seu hoje.",
   heroDesc: "Sem instalar nada — tire fotos no navegador, escolha um enquadramento e baixe.",
   startButton: "Começar",
@@ -610,6 +623,7 @@ const pt: Translations = {
 // ─── German ───────────────────────────────────────────────────────────────────
 
 const de: Translations = {
+  filterNames: { none: "Kein Filter", bw: "S/W", sepia: "Sepia", warm: "Warm", vivid: "Lebendig", bright: "Hell", cool: "Kühl", vintage: "Vintage" },
   heroTitle: "Halte deinen heutigen Tag fest.",
   heroDesc: "Ohne App-Installation — fotografiere im Browser, wähle einen Rahmen und lade dein Bild herunter.",
   startButton: "Loslegen",

@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "WebSearch",
-      "Bash(docker compose *)"
+      "Bash(docker compose *)",
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(python -c ' *)",
+      "Bash(node -e ' *)",
+      "Bash(npx --yes node -e ' *)"
     ]
   }
 }

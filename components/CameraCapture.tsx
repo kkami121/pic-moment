@@ -226,7 +226,7 @@ export default function CameraCapture() {
                 return CAMERA_FILTERS[(i - 1 + CAMERA_FILTERS.length) % CAMERA_FILTERS.length];
               })}
             >‹</button>
-            <span className={styles.filterName}>{selectedFilter!.name}</span>
+            <span className={styles.filterName}>{t.filterNames[selectedFilter!.id] ?? selectedFilter!.name}</span>
             <button
               type="button"
               className={styles.filterArrow}
