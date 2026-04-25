@@ -5,32 +5,23 @@
 }
 
 .previewCard {
-  padding: 22px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.canvasWrap {
+  padding: 16px;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  padding: 22px;
-  border-radius: 28px;
-  background:
-    radial-gradient(circle at top, rgba(255, 122, 89, 0.16), transparent 36%),
-    linear-gradient(180deg, #16263f 0%, #0c1628 100%);
+  width: fit-content;
+  justify-self: center;
+  align-self: center;
 }
 
 .previewCanvas {
-  width: min(100%, calc((100vh - 100px) * 0.66));
+  display: block;
+  width: min(480px, calc((100vh - 120px) * 0.66));
   height: auto;
-  border-radius: 24px;
+  border-radius: 12px;
   background: #fff;
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
 }
 
 .renderingOverlay {
@@ -38,7 +29,7 @@
   inset: 0;
   display: grid;
   place-items: center;
-  border-radius: 28px;
+  border-radius: var(--radius-lg);
   background: rgba(0, 0, 0, 0.45);
   color: #fff;
   font-size: 15px;
@@ -212,7 +203,6 @@
     height: calc(100vh - 56px);
   }
 
-  .previewCard,
   .decorCard {
     min-height: 0;
     overflow: hidden;
@@ -228,18 +218,21 @@
     grid-template-columns: 1fr;
   }
 
+  .previewCard {
+    justify-self: center;
+  }
+
   .previewCanvas {
-    width: min(100%, 400px);
+    width: min(400px, 90vw);
   }
 }
 
 @media (max-width: 767px) {
-  .previewCard,
   .decorCard {
     padding: 16px;
   }
 
   .previewCanvas {
-    width: min(100%, 320px);
+    width: min(320px, 90vw);
   }
 }

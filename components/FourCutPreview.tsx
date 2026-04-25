@@ -136,14 +136,12 @@ export default function FourCutPreview() {
   return (
     <section className={styles.layout}>
       <div className={`panelCard ${styles.previewCard}`}>
-        <div className={styles.canvasWrap}>
-          <canvas ref={canvasRef} className={styles.previewCanvas} />
-          {isRendering && (
-            <div className={styles.renderingOverlay}>
-              <span>{t.rendering}</span>
-            </div>
-          )}
-        </div>
+        <canvas ref={canvasRef} className={styles.previewCanvas} />
+        {isRendering && (
+          <div className={styles.renderingOverlay}>
+            <span>{t.rendering}</span>
+          </div>
+        )}
       </div>
 
       <aside className={`panelCard ${styles.decorCard}`}>
