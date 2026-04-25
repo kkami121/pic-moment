@@ -3,8 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  CAMERA_FILTERS,
-  type CameraFilter,
   type CameraErrorKey,
   DRAFT_STORAGE_KEY,
   RESULT_STORAGE_KEY,
@@ -24,12 +22,9 @@ export default function CameraCapture() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const captureCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const swipeStartX = useRef<number | null>(null);
-
   const [shots, setShots] = useState<string[]>([]);
   const [retakeIndex, setRetakeIndex] = useState<number | null>(null);
   const [previewShot, setPreviewShot] = useState<string | null>(null);
-  const [selectedFilter, setSelectedFilter] = useState(CAMERA_FILTERS[0]);
   const [isMounted, setIsMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isCapturing, setIsCapturing] = useState(false);
@@ -133,7 +128,7 @@ export default function CameraCapture() {
     setIsCapturing(true);
 
     try {
-      const imageDataUrl = captureFrameToDataUrl(videoElement, captureCanvas, selectedFilter!.css);
+      const imageDataUrl = captureFrameToDataUrl(videoElement, captureCanvas);
 
       setShots((previousShots) => {
         const nextShots = [...previousShots];
@@ -156,7 +151,7 @@ export default function CameraCapture() {
     } finally {
       setIsCapturing(false);
     }
-  }, [retakeIndex, selectedFilter, t, cameraError]);
+  }, [retakeIndex, t, cameraError]);
 
 
   const handleGoToResult = useCallback(() => {
@@ -166,27 +161,6 @@ export default function CameraCapture() {
 
   const handleRetakeMode = useCallback((index: number) => {
     setRetakeIndex(index);
-  }, []);
-
-  const handleSwipeStart = useCallback((e: { clientX: number }) => {
-    swipeStartX.current = e.clientX;
-  }, []);
-
-  const handleSwipeEnd = useCallback((e: { clientX: number }) => {
-    if (swipeStartX.current === null) return;
-    const deltaX = e.clientX - swipeStartX.current;
-    swipeStartX.current = null;
-
-    if (Math.abs(deltaX) < 40) return;
-
-    setSelectedFilter((prev: CameraFilter) => {
-      const currentIndex = CAMERA_FILTERS.findIndex((f) => f.id === prev.id);
-      if (deltaX < 0) {
-        return CAMERA_FILTERS[(currentIndex + 1) % CAMERA_FILTERS.length];
-      } else {
-        return CAMERA_FILTERS[(currentIndex - 1 + CAMERA_FILTERS.length) % CAMERA_FILTERS.length];
-      }
-    });
   }, []);
 
   if (!isMounted) {
@@ -203,12 +177,7 @@ export default function CameraCapture() {
     <>
     <section className={styles.layout}>
       <div className={`panelCard ${styles.cameraCard}`}>
-        <div
-          className={styles.previewFrame}
-          onPointerDown={handleSwipeStart}
-          onPointerUp={handleSwipeEnd}
-          onPointerLeave={() => { swipeStartX.current = null; }}
-        >
+        <div className={styles.previewFrame}>
           <div className={styles.captureBadge}>
             <span>
               {retakeIndex !== null
@@ -217,27 +186,7 @@ export default function CameraCapture() {
             </span>
           </div>
 
-          <div className={styles.filterIndicator}>
-            <button
-              type="button"
-              className={styles.filterArrow}
-              onClick={() => setSelectedFilter((prev: CameraFilter) => {
-                const i = CAMERA_FILTERS.findIndex((f) => f.id === prev.id);
-                return CAMERA_FILTERS[(i - 1 + CAMERA_FILTERS.length) % CAMERA_FILTERS.length];
-              })}
-            >‹</button>
-            <span className={styles.filterName}>{t.filterNames[selectedFilter!.id] ?? selectedFilter!.name}</span>
-            <button
-              type="button"
-              className={styles.filterArrow}
-              onClick={() => setSelectedFilter((prev: CameraFilter) => {
-                const i = CAMERA_FILTERS.findIndex((f) => f.id === prev.id);
-                return CAMERA_FILTERS[(i + 1) % CAMERA_FILTERS.length];
-              })}
-            >›</button>
-          </div>
-
-          <video ref={videoRef} autoPlay playsInline muted style={{ filter: selectedFilter!.css === "none" ? undefined : selectedFilter!.css }} />
+          <video ref={videoRef} autoPlay playsInline muted />
 
           {(isLoading || errorMessage) && (
             <div className={styles.previewFallback}>

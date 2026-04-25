@@ -122,57 +122,63 @@
   color: var(--text-main);
 }
 
-.stickerHint {
-  margin: 0 0 12px;
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
-.stickerGrid {
+.filterGrid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
 }
 
-.stickerBtn {
+.filterCard {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(16, 35, 63, 0.1);
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  text-align: left;
+}
+
+.filterCard:hover {
+  border-color: rgba(16, 35, 63, 0.22);
+}
+
+.filterCardSelected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(255, 122, 89, 0.22);
+}
+
+.filterPreview {
+  height: 72px;
+  background: linear-gradient(135deg, #c5a882 0%, #9bb5c8 60%, #c8a0a0 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
-  padding: 10px;
-  border-radius: 14px;
-  border: 2px solid transparent;
+  font-size: 18px;
+}
+
+.filterInfo {
+  padding: 6px 8px;
   background: rgba(16, 35, 63, 0.04);
-  cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
-  line-height: 1;
 }
 
-.stickerBtn:hover {
-  background: rgba(16, 35, 63, 0.08);
+.filterName {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.stickerSelected {
-  border-color: var(--accent);
-  background: rgba(255, 122, 89, 0.1);
-}
-
-.clearBtn {
-  margin-top: 12px;
-  display: inline-flex;
-  align-items: center;
-  padding: 8px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(16, 35, 63, 0.15);
-  background: none;
-  font-size: 13px;
-  font-weight: 600;
+.filterCssHint {
+  font-size: 8px;
   color: var(--text-muted);
-  cursor: pointer;
-}
-
-.clearBtn:hover {
-  background: rgba(16, 35, 63, 0.06);
+  font-family: monospace;
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .actions {

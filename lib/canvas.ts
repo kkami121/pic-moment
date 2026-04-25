@@ -23,7 +23,7 @@ export const FOURCUT_THEMES: FourCutTheme[] = [
 
 export type FourCutOptions = {
   theme?: FourCutTheme;
-  stickers?: string[];
+  filterCss?: string;
 };
 
 const CANVAS_WIDTH = 900;
@@ -57,18 +57,18 @@ export async function renderFourCutToCanvas(
   }
 
   const theme = options?.theme ?? FOURCUT_THEMES[0];
-  const stickers = options?.stickers ?? [];
+  const filterCss = options?.filterCss ?? "none";
   const loadedImages = await Promise.all(images.map(loadImage));
 
   ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
   switch (theme.id) {
-    case "film":      drawFilm(ctx, loadedImages, stickers, theme); break;
-    case "polaroid":  drawPolaroid(ctx, loadedImages, stickers, theme); break;
-    case "floral":    drawFloral(ctx, loadedImages, stickers, theme); break;
-    case "neon":      drawNeon(ctx, loadedImages, stickers, theme); break;
-    case "scrapbook": drawScrapbook(ctx, loadedImages, stickers, theme); break;
-    default:          drawClassic(ctx, loadedImages, stickers, theme); break;
+    case "film":      drawFilm(ctx, loadedImages, filterCss, theme); break;
+    case "polaroid":  drawPolaroid(ctx, loadedImages, filterCss, theme); break;
+    case "floral":    drawFloral(ctx, loadedImages, filterCss, theme); break;
+    case "neon":      drawNeon(ctx, loadedImages, filterCss, theme); break;
+    case "scrapbook": drawScrapbook(ctx, loadedImages, filterCss, theme); break;
+    default:          drawClassic(ctx, loadedImages, filterCss, theme); break;
   }
 }
 
@@ -77,7 +77,7 @@ export async function renderFourCutToCanvas(
 function drawClassic(
   ctx: CanvasRenderingContext2D,
   images: HTMLImageElement[],
-  stickers: string[],
+  filterCss: string,
   t: FourCutTheme
 ) {
   ctx.fillStyle = t.bgColor;
@@ -106,13 +106,13 @@ function drawClassic(
     if (!s) return;
     ctx.fillStyle = "#d9d9dd";
     ctx.fillRect(s.x, s.y, SLOT_WIDTH, SLOT_HEIGHT);
-    drawImageCover(ctx, img, s.x, s.y, SLOT_WIDTH, SLOT_HEIGHT);
+    drawImageCover(ctx, img, s.x, s.y, SLOT_WIDTH, SLOT_HEIGHT, filterCss);
     ctx.strokeStyle = "rgba(16,35,63,0.06)";
     ctx.lineWidth = 2;
     ctx.strokeRect(s.x, s.y, SLOT_WIDTH, SLOT_HEIGHT);
   });
 
-  drawStandardBand(ctx, stickers, t);
+  drawStandardBand(ctx, t);
 
   ctx.strokeStyle = "rgba(16,35,63,0.14)";
   ctx.lineWidth = 2;
@@ -129,7 +129,7 @@ function drawClassic(
 function drawFilm(
   ctx: CanvasRenderingContext2D,
   images: HTMLImageElement[],
-  stickers: string[],
+  filterCss: string,
   t: FourCutTheme
 ) {
   ctx.fillStyle = "#0d0d0d";
@@ -175,16 +175,7 @@ function drawFilm(
   ctx.fillStyle = t.accentColor;
   ctx.font = "600 13px 'Courier New', monospace";
   ctx.textAlign = "center";
-  if (stickers.length > 0) {
-    const count = Math.min(stickers.length, 5);
-    const gap = INNER_WIDTH / (count + 1);
-    ctx.font = "38px serif";
-    for (let i = 0; i < count; i++) {
-      ctx.fillText(stickers[i]!, PAPER_PADDING + gap * (i + 1), bandY + CENTER_BAND_HEIGHT / 2 + 14);
-    }
-  } else {
-    ctx.fillText("◈  MEMORY CAPTURED  ◈", CANVAS_WIDTH / 2, bandY + CENTER_BAND_HEIGHT / 2 + 6);
-  }
+  ctx.fillText("◈  MEMORY CAPTURED  ◈", CANVAS_WIDTH / 2, bandY + CENTER_BAND_HEIGHT / 2 + 6);
 
   ctx.fillStyle = "rgba(212,160,23,0.6)";
   ctx.font = "500 12px 'Courier New', monospace";
@@ -210,7 +201,7 @@ function drawSprocketStrip(ctx: CanvasRenderingContext2D, _x: number, w: number,
 function drawPolaroid(
   ctx: CanvasRenderingContext2D,
   images: HTMLImageElement[],
-  stickers: string[],
+  filterCss: string,
   t: FourCutTheme
 ) {
   ctx.fillStyle = t.bgColor;
@@ -247,11 +238,11 @@ function drawPolaroid(
     ctx.shadowOffsetX = 2; ctx.shadowOffsetY = 3;
     ctx.fillRect(s.x - padH, s.y - padV, SLOT_WIDTH + padH * 2, SLOT_HEIGHT + padV + padBottom);
     ctx.shadowColor = "transparent"; ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
-    drawImageCover(ctx, img, s.x, s.y, SLOT_WIDTH, SLOT_HEIGHT);
+    drawImageCover(ctx, img, s.x, s.y, SLOT_WIDTH, SLOT_HEIGHT, filterCss);
     drawNoiseTexture(ctx, SLOT_WIDTH, SLOT_HEIGHT, "rgba(255,255,255,0.06)", s.x, s.y);
   });
 
-  drawStandardBand(ctx, stickers, t, "italic 700 14px Georgia, serif");
+  drawStandardBand(ctx, t, "italic 700 14px Georgia, serif");
 
   ctx.fillStyle = t.accentColor;
   ctx.font = "italic 400 13px Georgia, serif";
@@ -280,7 +271,7 @@ function drawNoiseTexture(
 function drawFloral(
   ctx: CanvasRenderingContext2D,
   images: HTMLImageElement[],
-  stickers: string[],
+  filterCss: string,
   t: FourCutTheme
 ) {
   ctx.fillStyle = t.bgColor;
@@ -321,7 +312,7 @@ function drawFloral(
     ctx.save();
     roundRectPath(ctx, s.x, s.y, SLOT_WIDTH, SLOT_HEIGHT, 6);
     ctx.clip();
-    drawImageCover(ctx, img, s.x, s.y, SLOT_WIDTH, SLOT_HEIGHT);
+    drawImageCover(ctx, img, s.x, s.y, SLOT_WIDTH, SLOT_HEIGHT, filterCss);
     ctx.restore();
     ctx.strokeStyle = "rgba(192,96,122,0.25)";
     ctx.lineWidth = 1.5;
@@ -338,7 +329,7 @@ function drawFloral(
   ];
   corners.forEach(([cx, cy]) => drawFlowerCluster(ctx, cx, cy));
 
-  drawStandardBand(ctx, stickers, t);
+  drawStandardBand(ctx, t);
 
   ctx.fillStyle = t.accentColor;
   ctx.font = "400 13px Pretendard, SUIT, sans-serif";
@@ -369,7 +360,7 @@ function drawFlowerCluster(ctx: CanvasRenderingContext2D, cx: number, cy: number
 function drawNeon(
   ctx: CanvasRenderingContext2D,
   images: HTMLImageElement[],
-  stickers: string[],
+  filterCss: string,
   t: FourCutTheme
 ) {
   ctx.fillStyle = "#0a0a14";
@@ -414,7 +405,7 @@ function drawNeon(
   images.forEach((img, i) => {
     const s = slots[i];
     if (!s) return;
-    drawImageCover(ctx, img, s.x, s.y, SLOT_WIDTH, SLOT_HEIGHT);
+    drawImageCover(ctx, img, s.x, s.y, SLOT_WIDTH, SLOT_HEIGHT, filterCss);
 
     // neon corner brackets
     const bLen = 20, bW = 2;
@@ -439,24 +430,14 @@ function drawNeon(
   ctx.fillStyle = "rgba(0,245,212,0.04)";
   ctx.fillRect(PAPER_PADDING, bandY, INNER_WIDTH, CENTER_BAND_HEIGHT);
 
-  if (stickers.length > 0) {
-    ctx.font = "38px serif";
-    ctx.textAlign = "center";
-    const count = Math.min(stickers.length, 5);
-    const gap = INNER_WIDTH / (count + 1);
-    for (let i = 0; i < count; i++) {
-      ctx.fillText(stickers[i]!, PAPER_PADDING + gap * (i + 1), bandY + CENTER_BAND_HEIGHT / 2 + 14);
-    }
-  } else {
-    ctx.save();
-    ctx.shadowColor = "#ff2d6f";
-    ctx.shadowBlur = 10;
-    ctx.fillStyle = "#ff2d6f";
-    ctx.font = "600 13px 'Courier New', monospace";
-    ctx.textAlign = "center";
-    ctx.fillText("★  MEMORY FRAME  ★", CANVAS_WIDTH / 2, bandY + CENTER_BAND_HEIGHT / 2 + 6);
-    ctx.restore();
-  }
+  ctx.save();
+  ctx.shadowColor = "#ff2d6f";
+  ctx.shadowBlur = 10;
+  ctx.fillStyle = "#ff2d6f";
+  ctx.font = "600 13px 'Courier New', monospace";
+  ctx.textAlign = "center";
+  ctx.fillText("★  MEMORY FRAME  ★", CANVAS_WIDTH / 2, bandY + CENTER_BAND_HEIGHT / 2 + 6);
+  ctx.restore();
 
   ctx.save();
   ctx.shadowColor = "#00f5d4";
@@ -473,7 +454,7 @@ function drawNeon(
 function drawScrapbook(
   ctx: CanvasRenderingContext2D,
   images: HTMLImageElement[],
-  stickers: string[],
+  filterCss: string,
   t: FourCutTheme
 ) {
   // kraft paper background
@@ -523,7 +504,7 @@ function drawScrapbook(
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(-SLOT_WIDTH / 2 - 4, -SLOT_HEIGHT / 2 - 4, SLOT_WIDTH + 8, SLOT_HEIGHT + 8);
     ctx.shadowColor = "transparent"; ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
-    drawImageCover(ctx, img, -SLOT_WIDTH / 2, -SLOT_HEIGHT / 2, SLOT_WIDTH, SLOT_HEIGHT);
+    drawImageCover(ctx, img, -SLOT_WIDTH / 2, -SLOT_HEIGHT / 2, SLOT_WIDTH, SLOT_HEIGHT, filterCss);
     ctx.restore();
 
     // corner diamond tape marks
@@ -533,7 +514,7 @@ function drawScrapbook(
     drawCornerTape(ctx, s.x + SLOT_WIDTH, s.y + SLOT_HEIGHT, true, true);
   });
 
-  drawStandardBand(ctx, stickers, t, "italic 700 14px Georgia, serif");
+  drawStandardBand(ctx, t, "italic 700 14px Georgia, serif");
 
   ctx.fillStyle = t.accentColor;
   ctx.font = "italic 400 12px Georgia, serif";
@@ -596,7 +577,6 @@ function getSlotPositions() {
 
 function drawStandardBand(
   ctx: CanvasRenderingContext2D,
-  stickers: string[],
   t: FourCutTheme,
   font?: string
 ) {
@@ -611,21 +591,11 @@ function drawStandardBand(
   ctx.moveTo(PAPER_PADDING, bandY + CENTER_BAND_HEIGHT); ctx.lineTo(CANVAS_WIDTH - PAPER_PADDING, bandY + CENTER_BAND_HEIGHT);
   ctx.stroke();
 
-  if (stickers.length > 0) {
-    ctx.font = "38px serif";
-    ctx.textAlign = "center";
-    const count = Math.min(stickers.length, 5);
-    const gap = INNER_WIDTH / (count + 1);
-    for (let i = 0; i < count; i++) {
-      ctx.fillText(stickers[i]!, PAPER_PADDING + gap * (i + 1), bandMid + 14);
-    }
-  } else {
-    ctx.fillStyle = t.accentColor;
-    ctx.font = font ?? "700 12px Pretendard, SUIT, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("MEMORY FRAME", CANVAS_WIDTH / 2 - 155, bandMid + 8);
-    ctx.fillText("KEEP YOURSELF ALIVE", CANVAS_WIDTH / 2 + 110, bandMid + 8);
-  }
+  ctx.fillStyle = t.accentColor;
+  ctx.font = font ?? "700 12px Pretendard, SUIT, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("MEMORY FRAME", CANVAS_WIDTH / 2 - 155, bandMid + 8);
+  ctx.fillText("KEEP YOURSELF ALIVE", CANVAS_WIDTH / 2 + 110, bandMid + 8);
 }
 
 function roundRectPath(
@@ -661,7 +631,8 @@ function drawGrid(
 function drawImageCover(
   ctx: CanvasRenderingContext2D,
   image: HTMLImageElement,
-  x: number, y: number, width: number, height: number
+  x: number, y: number, width: number, height: number,
+  filterCss?: string
 ) {
   const ir = image.width / image.height;
   const fr = width / height;
@@ -674,7 +645,11 @@ function drawImageCover(
     sh = image.width / fr;
     sy = (image.height - sh) / 2;
   }
+
+  ctx.save();
+  if (filterCss && filterCss !== "none") ctx.filter = filterCss;
   ctx.drawImage(image, sx, sy, sw, sh, x, y, width, height);
+  ctx.restore();
 }
 
 function getFooterText() {

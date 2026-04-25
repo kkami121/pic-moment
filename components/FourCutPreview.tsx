@@ -11,16 +11,11 @@ import {
   renderFourCutToCanvas,
   type FourCutTheme,
 } from "@/lib/canvas";
+import { CAMERA_FILTERS, type CameraFilter } from "@/lib/camera";
 import { useT } from "@/lib/localeContext";
 import styles from "./FourCutPreview.module.css";
 
 const REQUIRED_SHOTS = 4;
-
-const STICKER_OPTIONS = [
-  "🌸", "✨", "💫", "🌟", "💝", "🎀", "🌈", "🦋",
-  "🌙", "⭐", "🍀", "🌺", "💐", "🎊", "🎉", "🫧",
-  "🩷", "🩵", "💛", "🤍",
-];
 
 export default function FourCutPreview() {
   const router = useRouter();
@@ -32,8 +27,8 @@ export default function FourCutPreview() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isRendering, setIsRendering] = useState(true);
   const [selectedTheme, setSelectedTheme] = useState<FourCutTheme>(FOURCUT_THEMES[0]!);
-  const [stickers, setStickers] = useState<string[]>([]);
-  const [activeTab, setActiveTab] = useState<"frame" | "sticker">("frame");
+  const [selectedFilter, setSelectedFilter] = useState<CameraFilter>(CAMERA_FILTERS[0]!);
+  const [activeTab, setActiveTab] = useState<"frame" | "filter">("frame");
 
   useEffect(() => {
     setIsMounted(true);
@@ -72,7 +67,7 @@ export default function FourCutPreview() {
       setErrorMessage(null);
 
       try {
-        await renderFourCutToCanvas(canvasRef.current, shots, { theme: selectedTheme, stickers });
+        await renderFourCutToCanvas(canvasRef.current, shots, { theme: selectedTheme, filterCss: selectedFilter.css });
       } catch (error) {
         if (!isCancelled) {
           setErrorMessage(t.renderError);
@@ -87,7 +82,7 @@ export default function FourCutPreview() {
     return () => {
       isCancelled = true;
     };
-  }, [shots, selectedTheme, stickers, t.renderError]);
+  }, [shots, selectedTheme, selectedFilter, t.renderError]);
 
   const handleDownload = async (format: "png" | "jpeg") => {
     if (!canvasRef.current) return;
@@ -104,14 +99,6 @@ export default function FourCutPreview() {
     sessionStorage.removeItem(RESULT_STORAGE_KEY);
     router.push("/camera");
   };
-
-  const toggleSticker = useCallback((emoji: string) => {
-    setStickers((prev) => {
-      if (prev.includes(emoji)) return prev.filter((s) => s !== emoji);
-      if (prev.length >= 5) return prev;
-      return [...prev, emoji];
-    });
-  }, []);
 
   if (!isMounted) {
     return (
@@ -155,10 +142,10 @@ export default function FourCutPreview() {
           </button>
           <button
             type="button"
-            className={`${styles.tab} ${activeTab === "sticker" ? styles.tabActive : ""}`}
-            onClick={() => setActiveTab("sticker")}
+            className={`${styles.tab} ${activeTab === "filter" ? styles.tabActive : ""}`}
+            onClick={() => setActiveTab("filter")}
           >
-            {t.stickerTab}
+            {t.filterTab}
           </button>
         </div>
 
@@ -184,28 +171,28 @@ export default function FourCutPreview() {
             </div>
           )}
 
-          {activeTab === "sticker" && (
-            <>
-              <p className={styles.stickerHint}>{t.stickerHint}</p>
-              <div className={styles.stickerGrid}>
-                {STICKER_OPTIONS.map((emoji) => (
-                  <button
-                    key={emoji}
-                    type="button"
-                    className={`${styles.stickerBtn} ${stickers.includes(emoji) ? styles.stickerSelected : ""}`}
-                    onClick={() => toggleSticker(emoji)}
-                    aria-label={emoji}
+          {activeTab === "filter" && (
+            <div className={styles.filterGrid}>
+              {CAMERA_FILTERS.map((filter) => (
+                <button
+                  key={filter.id}
+                  type="button"
+                  className={`${styles.filterCard} ${selectedFilter.id === filter.id ? styles.filterCardSelected : ""}`}
+                  onClick={() => setSelectedFilter(filter)}
+                >
+                  <div
+                    className={styles.filterPreview}
+                    style={{ filter: filter.css === "none" ? undefined : filter.css }}
                   >
-                    {emoji}
-                  </button>
-                ))}
-              </div>
-              {stickers.length > 0 && (
-                <button type="button" className={styles.clearBtn} onClick={() => setStickers([])}>
-                  {t.clearSelection}
+                    📷
+                  </div>
+                  <div className={styles.filterInfo}>
+                    <div className={styles.filterName}>{t.filterNames[filter.id] ?? filter.name}</div>
+                    <div className={styles.filterCssHint}>{filter.css === "none" ? "—" : filter.css.split(" ")[0]}</div>
+                  </div>
                 </button>
-              )}
-            </>
+              ))}
+            </div>
           )}
         </div>
 
