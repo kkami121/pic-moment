@@ -95,11 +95,6 @@ function drawClassic(
   ctx.textAlign = "left";
   ctx.fillText("PIC MOMENT", PAPER_PADDING + 6, PAPER_PADDING + 26);
 
-  ctx.fillStyle = t.accentColor;
-  ctx.font = "600 16px Pretendard, SUIT, sans-serif";
-  ctx.textAlign = "right";
-  ctx.fillText("LIFE 4 CUT", CANVAS_WIDTH - PAPER_PADDING - 6, PAPER_PADDING + 26);
-
   const slots = getSlotPositions();
   images.forEach((img, i) => {
     const s = slots[i];
@@ -149,7 +144,6 @@ function drawFilm(
 
   ctx.fillStyle = "rgba(212,160,23,0.5)";
   ctx.font = "500 12px 'Courier New', monospace";
-  ctx.fillText("35mm · LIFE 4 CUT · KODAK", CANVAS_WIDTH / 2, PAPER_PADDING + 48);
 
   const slots = getSlotPositions();
   images.forEach((img, i) => {
@@ -175,7 +169,6 @@ function drawFilm(
   ctx.fillStyle = t.accentColor;
   ctx.font = "600 13px 'Courier New', monospace";
   ctx.textAlign = "center";
-  ctx.fillText("◈  MEMORY CAPTURED  ◈", CANVAS_WIDTH / 2, bandY + CENTER_BAND_HEIGHT / 2 + 6);
 
   ctx.fillStyle = "rgba(212,160,23,0.6)";
   ctx.font = "500 12px 'Courier New', monospace";
@@ -224,7 +217,6 @@ function drawPolaroid(
   ctx.fillText("Pic Moment", CANVAS_WIDTH / 2, PAPER_PADDING + 28);
   ctx.font = "italic 400 13px Georgia, serif";
   ctx.fillStyle = "rgba(138,122,106,0.7)";
-  ctx.fillText("life 4 cut — always remember", CANVAS_WIDTH / 2, PAPER_PADDING + 50);
 
   const slots = getSlotPositions();
   images.forEach((img, i) => {
@@ -303,7 +295,6 @@ function drawFloral(
   ctx.fillText("✿ PIC MOMENT ✿", CANVAS_WIDTH / 2, PAPER_PADDING + 28);
   ctx.fillStyle = t.accentColor;
   ctx.font = "400 13px Pretendard, SUIT, sans-serif";
-  ctx.fillText("life 4 cut", CANVAS_WIDTH / 2, PAPER_PADDING + 50);
 
   const slots = getSlotPositions();
   images.forEach((img, i) => {
@@ -399,7 +390,6 @@ function drawNeon(
   ctx.fillStyle = "rgba(255,45,111,0.7)";
   ctx.font = "500 12px 'Courier New', monospace";
   ctx.textAlign = "center";
-  ctx.fillText("LIFE 4 CUT  ·  NEON EDITION", CANVAS_WIDTH / 2, PAPER_PADDING + 50);
 
   const slots = getSlotPositions();
   images.forEach((img, i) => {
@@ -436,7 +426,6 @@ function drawNeon(
   ctx.fillStyle = "#ff2d6f";
   ctx.font = "600 13px 'Courier New', monospace";
   ctx.textAlign = "center";
-  ctx.fillText("★  MEMORY FRAME  ★", CANVAS_WIDTH / 2, bandY + CENTER_BAND_HEIGHT / 2 + 6);
   ctx.restore();
 
   ctx.save();
@@ -488,7 +477,6 @@ function drawScrapbook(
   ctx.fillText("✂ PIC MOMENT ✂", CANVAS_WIDTH / 2, PAPER_PADDING + 28);
   ctx.fillStyle = t.accentColor;
   ctx.font = "italic 400 13px Georgia, serif";
-  ctx.fillText("life 4 cut — scrapbook edition", CANVAS_WIDTH / 2, PAPER_PADDING + 50);
 
   const slots = getSlotPositions();
   images.forEach((img, i) => {
@@ -594,8 +582,6 @@ function drawStandardBand(
   ctx.fillStyle = t.accentColor;
   ctx.font = font ?? "700 12px Pretendard, SUIT, sans-serif";
   ctx.textAlign = "center";
-  ctx.fillText("MEMORY FRAME", CANVAS_WIDTH / 2 - 155, bandMid + 8);
-  ctx.fillText("KEEP YOURSELF ALIVE", CANVAS_WIDTH / 2 + 110, bandMid + 8);
 }
 
 function roundRectPath(
